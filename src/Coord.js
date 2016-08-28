@@ -133,24 +133,24 @@
 	{
 		// convert via Cartesian
 		var cart = this.cart(),
-		    sin_tilt = Math.sin(tilt),
-		    cos_tilt = Math.cos(tilt);
+		    sin_e = Math.sin(tilt),
+		    cos_e = Math.cos(tilt);
 		// return new coordinate
 		return new Coord({
 			x: cart.x,
-			y: cart.y * cos_tilt - cart.z * sin_tilt,
-			z: cart.z * cos_tilt + cart.y * sin_tilt,
+			y: cart.y * cos_e - cart.z * sin_e,
+			z: cart.z * cos_e + cart.y * sin_e,
 		});
 	}
 
 	// equatorial to ecliptic coordinates
 	// pass obliquity of ecliptic (axial tilt)
-	Coord.prototype.equ2ecl = function equ2ecl(e)
+	Coord.prototype.equ2ecl = function equ2ecl(tilt)
 	{
 		// convert via Cartesian
 		var cart = this.cart(),
-		    sin_e = Math.sin(e),
-		    cos_e = Math.cos(e);
+		    sin_e = Math.sin(tilt),
+		    cos_e = Math.cos(tilt);
 		// return new coordinate
 		return new Coord({
 			x: cart.x,
@@ -168,8 +168,8 @@
 	// var pole_dec = 27.4 * DEG2RAD;
 	// var posangle = 33.0 * DEG2RAD;
 
-	// equatorial to galactic coordinates
-	// galactic coordinate has only l/b
+	// galactic to equatorial coordinates
+	// equatorial coordinate has only l/b
 	Coord.prototype.gal2equ = function gal2equ()
 	{
 		// pre-calculations
