@@ -1,0 +1,4 @@
+/*
+Astronomical Calculations (https://github.com/mgreter/astro.js)
+- Copyright (c) 2017 Marcel Greter (http://github.com/mgreter)
+*/

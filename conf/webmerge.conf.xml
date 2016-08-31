@@ -26,6 +26,7 @@
 
 		<js id="astro.js">
 
+			<prefix path="conf/license.header.txt" />
 			<prefix>/* Vector3 implementation included */</prefix>
 			<prepend>(function(window) {</prepend>
 			<input path="lib/Vector3.js" />
@@ -43,6 +44,7 @@
 
 		<js id="astro.three.js">
 
+			<prefix path="conf/license.header.txt" />
 			<prefix>/* Include three.js (Vector3) before */</prefix>
 			<prepend>(function(window) {</prepend>
 			<input path="src/Math.js" />
