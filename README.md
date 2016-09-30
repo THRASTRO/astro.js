@@ -21,8 +21,8 @@ solution for Kepler's Equation via Newton-Raphson solver loop.
 Keep in mind that all angular parameters are in rads and that all
 other units are linked to each other. This means that you can change
 the units by adjusting the gravitational parameter. We use the solar
-gravitational parameter by default with the units: au^3/(solm*day^2).
-Normally in physics this parameter is measured in m^3/(kg*s^2). All
+gravitational parameter by default with the units: `au^3/(solm*day^2)`.
+Normally in physics this parameter is measured in `m^3/(kg*s^2)`. All
 distance and time units must therefore be in the same units as `G`.
 
 ## Orbit Constructors
@@ -81,10 +81,10 @@ new Orbit({
 
 ## Query Orbital Elements
 
-After construction, most parameters are already calculated, so you my access
-them directly. It is recommended though to access the elements via the getter
-methods. This will ensure that the requested element is actually calculated.
-If you want the most performance you may access them directly though.
+After construction, most parameters are already calculated. You may access them
+directly, but it's recommended call their getters instead, to ensure  the
+requested element was really calculated. If you want the most performance
+you may access them directly though (Just be careful!).
 
 Pretty much every orbital element is stored as a one char parameter. Thus it
 is important that you make sure you access the correct variable, it is easy
@@ -308,7 +308,7 @@ Calculate the mean sidereal time at the meridian of Greenwich of a given date.
 
 Calculate nutation of longitude and obliquity in degrees from Julian Ephemeris Day
 
-One to one implementations from [libnova] [1]
+One to one implementations from [libnova][1]
 
 [1]: http://libnova.sourceforge.net/
 
@@ -373,19 +373,19 @@ new Coord({
 
 ### `cart()`
 
-Return [Cartesian Coordinates] [2]
+Return [Cartesian Coordinates][2]
 
 [2]: https://en.wikipedia.org/wiki/Cartesian_coordinate_system (xyz)
 
 ### `sph()`
 
-Return [Spherical Coordinates] [3]
+Return [Spherical Coordinates][3]
 
 [3]: https://en.wikipedia.org/wiki/Spherical_coordinate_system (lbr)
 
 ### `cyl()`
 
-Return [Cylindrical Coordinates] [4]
+Return [Cylindrical Coordinates][4]
 
 [4]: https://en.wikipedia.org/wiki/Cylindrical_coordinate_system (zlp)
 
