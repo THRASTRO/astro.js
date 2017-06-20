@@ -1,57 +1,55 @@
 // global constants for math operations
-// should probably put into a namespace
 
-// astronomical units to meters
-var AU2M = 1.495978707e+11;
-var M2AU = 1 / AU2M;
-// astronomical units to kilometers
-var AU2KM = AU2M / 1000;
-var KM2AU = M2AU * 1000;
-// meters to parsecs
-var PC2M = 30856776e9;
-var M2PC = 1 / PC2M;
-// metric conversion
-var KM2M = 1000;
-var M2KM = 1 / KM2M;
+// use TAU, PI is wrong
+var PI = 1 * Math.PI;
+var TAU = 2 * Math.PI;
 
-// exponential factors
-var KM2AU2 = KM2AU * KM2AU;
-var KM2AU3 = KM2AU2 * KM2AU;
+// create namespace for constants
+// we still define local variables
+// wrap anonymous function around!
+var AstroJS = this.AstroJS = {
 
-// J2000 epoch in JD
-var T2K = 2451545.0; // TT
+	// astronomical units to meters
+	AU2M: 1.495978707e+11,
+	// astronomical units to kilometers
+	AU2KM: 1.495978707e+8,
+	// meters to parsecs
+	PC2M: 30856776e9,
+	// metric conversion
+	KM2M: 1000,
+	// julian day conversion
+	JY2JD: 365.25,
+	// time conversion
+	JD2SEC: 24*60*60,
+	// solar mass conversion
+	MSOL2KG: 1.98855e30,
+	// trig conversion factors
+	DEG2RAD: TAU / 360,
+	HMS2RAD: TAU / 24,
+	HMS2DEG: 360 / 24,
 
-// julian day conversion
-var JY2JD = 365.25;
-var JD2JY = 1 / JY2JD;
-
-// time conversion
-var JD2SEC = 24*60*60;
-var SEC2JD = 1 / JD2SEC;
-
-// solar mass conversion
-var MSOL2KG = 1.98855e30;
-var KG2MSOL = 1 / MSOL2KG;
-
-// Julian Days to J2000
-function JD2J2K (JD)
-{
-	// offset epoch and add ratio
-	return (JD - T2K) / JY2JD;
 }
 
-// J2000 to Julian Days
-function J2K2JD (J2K)
-{
-	// add ratio and offset epoch
-	return J2K * JY2JD + T2K;
+// create inverted functions
+for (var name in AstroJS) {
+	var units = name.split('2', 2);
+	var inv = units.reverse().join('2');
+	AstroJS[inv] = 1 / AstroJS[name];
+}
+
+AstroJS.exportConstants =
+// export function might be handy
+function exportAstroConstants(base) {
+	for (var name in AstroJS) {
+		base[name] = AstroJS[name];
+	}
 }
 
 // Gravitational parameters for astronomic scale
 // time in days, distance in AU, mass in sun-mass
 // http://astronomy.stackexchange.com/a/7981
 // GM * M2AU^3 * JD2SEC^2 * MSOL2KG
-var GMP = {
+var GMP = AstroJS.GMP = {
 	sun: 2.9591220836841438269e-04, // sun
 	mer: 4.9125474514508118699e-11, // mer
 	ven: 7.2434524861627027000e-10, // ven
@@ -65,24 +63,7 @@ var GMP = {
 	plu: 2.1886997654259696800e-12 // plu
 };
 
-// maximum iterations to find
-// a value in range for epsilon
-// used in Newton-Raphson solver
-var MAXLOOP = 12;
-var EPSILON = 1e-12;
-
-// use TAU, PI is wrong
-var PI = 1 * Math.PI;
-var TAU = 2 * Math.PI;
-
-// trig conversion factors
-var DEG2RAD = TAU / 360;
-var RAD2DEG = 360 / TAU;
-var HMS2RAD = TAU / 24;
-var RAD2HMS = 24 / TAU;
-var HMS2DEG = 360 / 24;
-var DEG2HMS = 24 / 360;
-
+AstroJS.CYCLE =
 // from 0 to TAU
 // one full cycle
 function CYCLE(rad) {
@@ -92,6 +73,7 @@ function CYCLE(rad) {
 	return rad;
 }
 
+AstroJS.TURN =
 // from -PI to +PI
 // turn left/right
 function TURN(rad) {
@@ -100,6 +82,40 @@ function TURN(rad) {
 		rad -= TAU;
 	return rad;
 }
+
+AstroJS.JD2J2K =
+// Julian Days to J2000
+function JD2J2K (JD)
+{
+	// offset epoch and add ratio
+	return (JD - T2K) / JY2JD;
+}
+
+AstroJS.J2K2JD =
+// J2000 to Julian Days
+function J2K2JD (J2K)
+{
+	// add ratio and offset epoch
+	return J2K * JY2JD + T2K;
+}
+
+// export into global scope
+AstroJS.exportConstants(this);
+
+// internal constants for math operations
+
+// exponential factors
+var KM2AU2 = Math.pow(AstroJS.KM2AU, 2);
+var KM2AU3 = Math.pow(AstroJS.KM2AU, 3);
+
+// J2000 epoch in JD
+var T2K = 2451545.0; // TT
+
+// maximum iterations to find
+// a value in range for epsilon
+// used in Newton-Raphson solver
+var MAXLOOP = 12;
+var EPSILON = 1e-12;
 
 // polyfill for cube root function
 // from https://developer.mozilla.org
