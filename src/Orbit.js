@@ -149,6 +149,10 @@
 		if (!('_A' in this)) throw('Orbit is missing angular momentum (A)');
 		if (!('_c' in this)) throw('Orbit is missing pericenter (c)');
 		if (!('_C' in this)) throw('Orbit is missing apocenter (C)');
+		// check if eccentricity is inside valid boundaries (0-1)
+		if (this._e < 0) throw('Negative eccentricity is invalid');
+		if (this._e > 1) throw('Eccentricity must not be hyperbolic (> 1)');
+		if (this._e == 1) throw('Eccentricity must not be parabolic (== 1)');
 		// state vectors (r and v) are not tested here ...
 		if (full) if (!('_m' in this)) throw('Orbit is missing true anomaly (m)');
 		if (full) if (!('_B' in this)) throw('Orbit is missing radial velocity (B)');

@@ -34,7 +34,7 @@
 			<input path="src/Orbit.js" />
 			<input path="src/Time.js" />
 			<input path="src/Coord.js" />
-			<append>})(window)</append>
+			<append>}).call(this, this)</append>
 
 			<!-- where to store the resulting files -->
 			<output path="dist/src/astro.js" target="join" />
@@ -51,7 +51,7 @@
 			<input path="src/Orbit.js" />
 			<input path="src/Time.js" />
 			<input path="src/Coord.js" />
-			<append>})(window)</append>
+			<append>}).call(this, this)</append>
 
 			<!-- where to store the resulting files -->
 			<output path="dist/src/astro.three.js" target="join" />

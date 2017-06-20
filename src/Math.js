@@ -108,5 +108,5 @@ Math.cbrt = Math.cbrt || function(x) {
 
 // THREE.Vector3 compatible implementation
 if (typeof THREE != "undefined") {
-	window.Vector3 = THREE.Vector3;
+	this.Vector3 = THREE.Vector3;
 }

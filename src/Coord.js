@@ -106,6 +106,8 @@
 				else if ('i' in state) this.i = state.i, this.b = PI/2 - this.i;
 			}
 		}
+		// ToDo: error out on invalid input?
+		// Silently ignores ra/dec without dist!
 	}
 
 	/*############################################################################*/
@@ -264,7 +266,7 @@
 		// check for object near celestial pole
 		if (mean_dec > (0.4 * PI) || mean_dec < (-0.4 * PI)) {
 			// close to pole (better precision)
-			dec = Math.acos(sqrt(A * A + B * B));
+			dec = Math.acos(Math.sqrt(A * A + B * B));
 			// check 0 <= acos() <= PI
 			if (mean_dec < 0.) { dec *= -1;  }
 		}
@@ -273,7 +275,9 @@
 
 		// return object in valid range
 		// ToDo: should `b` be half turn?
-		return { l: CYCLE(ra), b: TURN(dec) };
+		var coord = { l: CYCLE(ra), b: TURN(dec) };
+		if ('r' in this) coord.r = this.r;
+		return coord;
 	}
 
 	/*############################################################################*/
