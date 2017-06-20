@@ -1,6 +1,11 @@
 // global constants for math operations
 
-// use TAU, PI is wrong
+// JDs in one JY
+var JY2JD = 365.25;
+// J2000 epoch in JD
+var JD2000 = 2451545.0;
+
+// use TAU, PI is wrong ;)
 var PI = 1 * Math.PI;
 var TAU = 2 * Math.PI;
 
@@ -18,7 +23,7 @@ var AstroJS = this.AstroJS = {
 	// metric conversion
 	KM2M: 1000,
 	// julian day conversion
-	JY2JD: 365.25,
+	JY2JD: JY2JD,
 	// time conversion
 	JD2SEC: 24*60*60,
 	// solar mass conversion
@@ -45,11 +50,16 @@ function exportAstroConstants(base) {
 	}
 }
 
+// additional exports
+AstroJS.PI = PI;
+AstroJS.TAU = TAU;
+
 // Gravitational parameters for astronomic scale
 // time in days, distance in AU, mass in sun-mass
 // http://astronomy.stackexchange.com/a/7981
 // GM * M2AU^3 * JD2SEC^2 * MSOL2KG
-var GMP = AstroJS.GMP = {
+var GMJD = AstroJS.GMJD = {
+	// VSOP2013 Masses system (INPOP10A)
 	sun: 2.9591220836841438269e-04, // sun
 	mer: 4.9125474514508118699e-11, // mer
 	ven: 7.2434524861627027000e-10, // ven
@@ -62,6 +72,15 @@ var GMP = AstroJS.GMP = {
 	nep: 1.5243589007842762800e-08, // nep
 	plu: 2.1886997654259696800e-12 // plu
 };
+
+// covert to a different time factor
+// time in julian years, distance in AU
+var GMJY = AstroJS.GMJY = {};
+for (name in GMJD) {
+	GMJY[name] = GMJD[name];
+	GMJY[name] *= 133407.5625;
+	// => Math.pow(365.25, 2)
+}
 
 AstroJS.CYCLE =
 // from 0 to TAU
@@ -88,7 +107,7 @@ AstroJS.JD2J2K =
 function JD2J2K (JD)
 {
 	// offset epoch and add ratio
-	return (JD - T2K) / JY2JD;
+	return (JD - JD2000) / JY2JD;
 }
 
 AstroJS.J2K2JD =
@@ -96,7 +115,7 @@ AstroJS.J2K2JD =
 function J2K2JD (J2K)
 {
 	// add ratio and offset epoch
-	return J2K * JY2JD + T2K;
+	return J2K * JY2JD + JD2000;
 }
 
 // export into global scope
@@ -107,9 +126,6 @@ AstroJS.exportConstants(this);
 // exponential factors
 var KM2AU2 = Math.pow(AstroJS.KM2AU, 2);
 var KM2AU3 = Math.pow(AstroJS.KM2AU, 3);
-
-// J2000 epoch in JD
-var T2K = 2451545.0; // TT
 
 // maximum iterations to find
 // a value in range for epsilon

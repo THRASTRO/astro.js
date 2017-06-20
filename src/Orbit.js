@@ -46,7 +46,7 @@
 		// match all others in terms of the units. In physics the
 		// units are by default m^3/(kg*s^2), but for astronomical
 		// uses we most often want to use au^3/(solm*day^2).
-		this._G = GMP.sun;
+		this._G = Orbit.GMP.sun;
 
 		// create state vectors from input parameters
 		if ('x' in arg && 'y' in arg && 'z' in arg) {
@@ -94,6 +94,10 @@
 
 	}
 	// EO Orbit ctor
+
+	// use mass system
+	// has julian days
+	Orbit.GMP = GMJD;
 
 	// optimized for minifier
 	var Klass = Orbit.prototype;

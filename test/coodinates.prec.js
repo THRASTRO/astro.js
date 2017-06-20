@@ -261,7 +261,7 @@
 				var prec = new Coord({ l: 0, b: 0, r: 1 })
 				var JD = equp[i][0], l = equp[i][1], b = equp[i][2];
 				var T = parseInt(JD * 10, 10) / 10;
-				assert.ok(prec = prec.precess(JD2J2K(JD), JD2J2K(T2K)), 'JD ' + T + ': Precess to JD');
+				assert.ok(prec = prec.precess(JD2J2K(JD), JD2J2K(JD2000)), 'JD ' + T + ': Precess to JD');
 				assert.close(prec.l * RAD2DEG, l, EPSILON, 'JD ' + T + ': Right Ascension (ra)');
 				assert.close(prec.b * RAD2DEG, b, EPSILON, 'JD ' + T + ': Declination (dec)');
 			}

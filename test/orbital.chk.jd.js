@@ -217,8 +217,11 @@
 	});
 
 
-	QUnit.module( 'Orbitals', {
+	QUnit.module( 'Orbitals JD', {
 			beforeEach: function () {
+
+				// change mass system
+				Orbit.GMP = GMJD;
 
 				// reset array
 				orbitals.length = 0;
