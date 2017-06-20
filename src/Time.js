@@ -280,14 +280,14 @@
 	function JD2JDE(JD)
 	{
 		// from the given Julian Day (JD)
-		return JD + getDynamicalTimeDiff(JD) / DAY2SEC;
+		return JD + getDynamicalTimeDiff(JD) / JD2SEC;
 	}
 
 	// Calculates the Julian Day(JDE)
 	function JDE2JD(JDE)
 	{
 		// from the given Julian Ephemeris Day (JD)
-		return JDE - getDynamicalTimeDiff(JDE) / DAY2SEC;
+		return JDE - getDynamicalTimeDiff(JDE) / JD2SEC;
 	}
 
 	/*############################################################################*/

@@ -226,7 +226,6 @@
 				// create orbits of all variations
 				for (var i = 0; i < orbits.length; i ++) {
 					orbitals.push(new Orbit(orbits[i]));
-					if (i == 2) window.orbit = orbitals[i];
 				}
 
 				// create exact copy of orbital

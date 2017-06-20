@@ -4,10 +4,12 @@
 // astronomical units to meters
 var AU2M = 1.495978707e+11;
 var M2AU = 1 / AU2M;
-
+// astronomical units to kilometers
 var AU2KM = AU2M / 1000;
 var KM2AU = M2AU * 1000;
-
+// meters to parsecs
+var PC2M = 30856776e9;
+var M2PC = 1 / PC2M;
 // metric conversion
 var KM2M = 1000;
 var M2KM = 1 / KM2M;
@@ -24,8 +26,8 @@ var JY2JD = 365.25;
 var JD2JY = 1 / JY2JD;
 
 // time conversion
-var DAY2SEC = 24*60*60;
-var SEC2DAY = 1 / DAY2SEC;
+var JD2SEC = 24*60*60;
+var SEC2JD = 1 / JD2SEC;
 
 // solar mass conversion
 var MSOL2KG = 1.98855e30;
@@ -48,7 +50,7 @@ function J2K2JD (J2K)
 // Gravitational parameters for astronomic scale
 // time in days, distance in AU, mass in sun-mass
 // http://astronomy.stackexchange.com/a/7981
-// GM * M2AU^3 * DAY2SEC^2 * MSOL2KG
+// GM * M2AU^3 * JD2SEC^2 * MSOL2KG
 var GMP = {
 	sun: 2.9591220836841438269e-04, // sun
 	mer: 4.9125474514508118699e-11, // mer

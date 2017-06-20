@@ -1,6 +1,6 @@
 # AstroJS
 
-JavaScript Library for Astronomical Calculations;
+JavaScript Library for Astronomical Calculations.
 Related to https://github.com/mgreter/ephem.js
 
 # Orbit.js
