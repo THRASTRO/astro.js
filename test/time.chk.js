@@ -267,8 +267,8 @@
 		{
 			for (var i = 0; i < times.length; i += 1) {
 				var jd = 'JD' + parseInt(times[i][0] * 100) / 100
-				assert.close(getMeanSiderealTime(times[i][0]) * RAD2HMS, times[i][2], 1e-4, jd + ': Mean');
-				assert.close(getApparentSiderealTime(times[i][0]) * RAD2HMS, times[i][3], 1e-4, jd + ': Apparent');
+				assert.close(getMeanSiderealTime(times[i][0]) * RAD2DEG / 15, times[i][2], 1e-4, jd + ': Mean');
+				assert.close(getApparentSiderealTime(times[i][0]) * RAD2DEG / 15, times[i][3], 1e-4, jd + ': Apparent');
 			}
 		});
 

@@ -37,59 +37,63 @@
 	function Orbit(arg)
 	{
 
+		var orbit = this;
+
 		// internal use
 		if (arg.empty) {
-			return this;
+			return orbit;
 		}
 
 		// the gravitational parameter is very important and must
 		// match all others in terms of the units. In physics the
 		// units are by default m^3/(kg*s^2), but for astronomical
 		// uses we most often want to use au^3/(solm*day^2).
-		this._G = Orbit.GMP.sun;
+		orbit._G = arg.G || Orbit.GMP.sun,
+			orbit._t = arg.epoch || arg.t || 0;
+		orbit.translate = arg.translate || null;
 
 		// create state vectors from input parameters
 		if ('x' in arg && 'y' in arg && 'z' in arg) {
-			this._r = new Vector3(arg.x, arg.y, arg.z);
+			orbit._r = new Vector3(arg.x, arg.y, arg.z);
 		}
 		else if ('rx' in arg && 'ry' in arg && 'rz' in arg) {
-			this._r = new Vector3(arg.rx, arg.ry, arg.rz);
+			orbit._r = new Vector3(arg.rx, arg.ry, arg.rz);
 		}
 		if ('X' in arg && 'Y' in arg && 'Z' in arg) {
-			this._v = new Vector3(arg.X, arg.Y, arg.Z);
+			orbit._v = new Vector3(arg.X, arg.Y, arg.Z);
 		}
 		else if ('vx' in arg && 'vy' in arg && 'vz' in arg) {
-			this._v = new Vector3(arg.vx, arg.vy, arg.vz);
+			orbit._v = new Vector3(arg.vx, arg.vy, arg.vz);
 		}
 
 		if ('r' in arg && 'v' in arg) {
 			var r = arg.r, v = arg.v;
 			// create new vectors (want a clone anyway)
-			this._r = new Vector3(r.x, r.y, r.z);
-			this._v = new Vector3(v.x, v.y, v.z);
+			orbit._r = new Vector3(r.x, r.y, r.z);
+			orbit._v = new Vector3(v.x, v.y, v.z);
 		}
 
 		// set status for state vectors
-		this.vectors = !!(this._r && this._v);
+		orbit.vectors = !!(orbit._r && orbit._v);
 
 		// get other parameters from arg
 		// unknown parameters are ignored
 		var vars = 'aeiMnPLcCwWOkhqpG'.split('');
 		for (var i in vars) {
 			if (arg.hasOwnProperty(vars[i])) {
-				this['_' + vars[i]] = arg[vars[i]];
+				orbit['_' + vars[i]] = arg[vars[i]];
 			}
 		}
 
 		// orbit may has name
 		if ('name' in arg) {
-			this.name = arg.name;
+			orbit.name = arg.name;
 		}
 
 		// resolve if not lazy
-		if (!this.lazy) {
-			this.updateElements();
-			this.requireElements();
+		if (!orbit.lazy) {
+			orbit.updateElements();
+			orbit.requireElements();
 		}
 
 	}
@@ -109,17 +113,18 @@
 	// copy existing orbit and return clone
 	Klass.clone = function clone(dt)
 	{
+		var orbit = this;
 		// create an empty object (internal use)
 		var clone = new Orbit({ empty: true });
 		// avoid unnecessary cloning of objects
-		if (dt) { delete this._v; delete this._r; }
+		if (dt) { delete orbit._v; delete orbit._r; }
 		// process all properties
-		for (var key in this) {
-			if (this.hasOwnProperty(key)) {
+		for (var key in orbit) {
+			if (orbit.hasOwnProperty(key)) {
 				// invoke nested clone functions (vectors)
-				if (typeof this[key].clone == 'function')
-				{ clone[key] = this[key].clone(); }
-				else { clone[key] = this[key]; }
+				if (orbit[key] && typeof orbit[key].clone == 'function')
+				{ clone[key] = orbit[key].clone(); }
+				else { clone[key] = orbit[key]; }
 			}
 		}
 		// optionally call update
@@ -133,35 +138,36 @@
 	/******************************************************************************/
 	Klass.checkElements = function checkElements(full)
 	{
+		var orbit = this;
 		// most basic check for initial pre-calculations
-		if (!this.elements) throw ('Orbitals not calculated');
+		if (!orbit.elements) throw ('Orbitals not calculated');
 		// do some basic checks for needed orbital elements
-		if (!('_i' in this)) throw ('Orbit is missing inclination (i)');
-		if (!('_e' in this)) throw ('Orbit is missing eccentricity (e)');
-		if (!('_a' in this)) throw ('Orbit is missing semi-major axis (a)');
-		if (!('_b' in this)) throw ('Orbit is missing semi-minor axis (b)');
-		if (!('_l' in this)) throw ('Orbit is missing semi-latus rectum (l)');
-		if (!('_c' in this)) throw ('Orbit is missing periapsis (c)');
-		if (!('_C' in this)) throw ('Orbit is missing apoapsis (C)');
-		if (!('_L' in this)) throw ('Orbit is missing mean longitude (L)');
-		if (!('_O' in this)) throw ('Orbit is missing right ascending node (O)');
-		if (!('_T' in this)) throw ('Orbit is missing time of periapsis (w)');
-		if (!('_w' in this)) throw ('Orbit is missing argument of periapsis (w)');
-		if (!('_W' in this)) throw ('Orbit is missing longitude of the periapsis (W)');
-		if (!('_n' in this)) throw ('Orbit is missing mean motion (n)');
-		if (!('_M' in this)) throw ('Orbit is missing mean anomaly (M)');
-		if (!('_P' in this)) throw ('Orbit is missing orbital period (P)');
-		if (!('_A' in this)) throw ('Orbit is missing angular momentum (A)');
-		if (!('_c' in this)) throw ('Orbit is missing pericenter (c)');
-		if (!('_C' in this)) throw ('Orbit is missing apocenter (C)');
+		if (!('_i' in orbit)) throw ('Orbit is missing inclination (i)');
+		if (!('_e' in orbit)) throw ('Orbit is missing eccentricity (e)');
+		if (!('_a' in orbit)) throw ('Orbit is missing semi-major axis (a)');
+		if (!('_b' in orbit)) throw ('Orbit is missing semi-minor axis (b)');
+		if (!('_l' in orbit)) throw ('Orbit is missing semi-latus rectum (l)');
+		if (!('_c' in orbit)) throw ('Orbit is missing periapsis (c)');
+		if (!('_C' in orbit)) throw ('Orbit is missing apoapsis (C)');
+		if (!('_L' in orbit)) throw ('Orbit is missing mean longitude (L)');
+		if (!('_O' in orbit)) throw ('Orbit is missing right ascending node (O)');
+		if (!('_T' in orbit)) throw ('Orbit is missing time of periapsis (w)');
+		if (!('_w' in orbit)) throw ('Orbit is missing argument of periapsis (w)');
+		if (!('_W' in orbit)) throw ('Orbit is missing longitude of the periapsis (W)');
+		if (!('_n' in orbit)) throw ('Orbit is missing mean motion (n)');
+		if (!('_M' in orbit)) throw ('Orbit is missing mean anomaly (M)');
+		if (!('_P' in orbit)) throw ('Orbit is missing orbital period (P)');
+		if (!('_A' in orbit)) throw ('Orbit is missing angular momentum (A)');
+		if (!('_c' in orbit)) throw ('Orbit is missing pericenter (c)');
+		if (!('_C' in orbit)) throw ('Orbit is missing apocenter (C)');
 		// check if eccentricity is inside valid boundaries (0-1)
-		if (this._e < 0) throw ('Negative eccentricity is invalid');
-		if (this._e > 1) throw ('Eccentricity must not be hyperbolic (> 1)');
-		if (this._e == 1) throw ('Eccentricity must not be parabolic (== 1)');
+		if (orbit._e < 0) throw ('Negative eccentricity is invalid');
+		if (orbit._e > 1) throw ('Eccentricity must not be hyperbolic (> 1)');
+		if (orbit._e == 1) throw ('Eccentricity must not be parabolic (== 1)');
 		// state vectors (r and v) are not tested here ...
-		if (full) if (!('_m' in this)) throw ('Orbit is missing true anomaly (m)');
-		if (full) if (!('_B' in this)) throw ('Orbit is missing radial velocity (B)');
-		if (full) if (!('_E' in this)) throw ('Orbit is missing eccentric anomaly (E)');
+		if (full) if (!('_m' in orbit)) throw ('Orbit is missing true anomaly (m)');
+		if (full) if (!('_B' in orbit)) throw ('Orbit is missing radial velocity (B)');
+		if (full) if (!('_E' in orbit)) throw ('Orbit is missing eccentric anomaly (E)');
 	}
 
 	/******************************************************************************/
@@ -182,72 +188,73 @@
 	Klass.updateElements = function updateElements(full)
 	{
 
+		var orbit = this;
 		// only resolve elements once
-		if (this.elements) return this;
+		if (orbit.elements) return orbit;
 		// will calculate now
-		this.elements = true;
+		orbit.elements = true;
 
 		/********************************************************/
 		// resolve from state vectors (r, v)
 		/********************************************************/
 
 		// check main state vectors
-		if ('_r' in this && '_v' in this) {
+		if ('_r' in orbit && '_v' in orbit) {
 
-			var r = this._r, v = this._v,
-				G = this._G, rl = r.length();
+			var r = orbit._r, v = orbit._v,
+				G = orbit._G, rl = r.length();
 
 			// specific relative angular momentum
-			this._A3 = r.clone().cross(v);
-			this._A2 = this._A3.lengthSq();
-			this._A = Math.sqrt(this._A2);
+			orbit._A3 = r.clone().cross(v);
+			orbit._A2 = orbit._A3.lengthSq();
+			orbit._A = Math.sqrt(orbit._A2);
 			// calculate radial velocity
-			this._B = r.dot(v) / rl;
+			orbit._B = r.dot(v) / rl;
 
 			// calculate eccentricity vector
-			var e3 = this._e3 = r.clone().multiplyScalar(v.lengthSq() - (G / rl))
-				.sub(v.clone().multiplyScalar(rl * this._B)).multiplyScalar(1 / G);
+			var e3 = orbit._e3 = r.clone().multiplyScalar(v.lengthSq() - (G / rl))
+				.sub(v.clone().multiplyScalar(rl * orbit._B)).multiplyScalar(1 / G);
 			// get eccentricity value from vector
-			var e2 = e3.lengthSq(), e = this._e = Math.sqrt(e2);
+			var e2 = e3.lengthSq(), e = orbit._e = Math.sqrt(e2);
 			// get inclination (i) via orbital momentum vector
-			this._i = Math.acos(this._A3.z / this._A);
+			orbit._i = Math.acos(orbit._A3.z / orbit._A);
 
 			// calculate semilatus rectum (ℓ)
-			this._l = this._A2 / G;
+			orbit._l = orbit._A2 / G;
 			// and periapsis (c) and apoapsis (C)
-			this._c = this._l / (1 + e);
-			this._C = this._l / (1 - e);
+			orbit._c = orbit._l / (1 + e);
+			orbit._C = orbit._l / (1 - e);
 			// and finally semi-major axis (a)
-			this._a = (this._C + this._c) / 2;
+			orbit._a = (orbit._C + orbit._c) / 2;
 
 			// pre-calculate node line
-			var nx = - this._A3.y,
-				ny = + this._A3.x;
+			var nx = - orbit._A3.y,
+				ny = + orbit._A3.x;
 			var nl = Math.sqrt(nx * nx + ny * ny);
 
 			// calculate ascending node (O)
 			var omega = nl == 0 ? 0 : Math.acos(nx / nl);
-			this._O = ny < 0 ? (TAU - omega) : omega;
+			orbit._O = ny < 0 ? (TAU - omega) : omega;
 
 			// calculate argument of periapsis (ω)
 			var nedot = nx * e3.x +
 				ny * e3.y;
-			if (nl === 0 || e === 0) { this.w = 0; }
-			else { this._w = Math.acos(nedot / nl / e); }
-			if (e3.z < 0) { this._w *= -1; }
+			if (nl === 0 || e === 0) { orbit._w = 0; }
+			else { orbit._w = Math.acos(nedot / nl / e); }
+			if (e3.z < 0) { orbit._w *= -1; }
 
 			// calculate true anomaly
 			var u; // argument of latitude
 			// case for circular orbit
 			// and without inclination
 			if (e === 0 && nl === 0) {
-				// this needs a test case
+				// orbit needs a test case
 				u = Math.acos(r.x / rl);
 			}
 			// circular orbit
 			// with inclination
 			else if (e === 0) {
-				// this needs a test case
+				// orbit needs a test case
 				var nrdot = nx * r.x + ny * r.y;
 				u = Math.acos(nrdot / (nl * rl));
 			}
@@ -257,16 +264,16 @@
 				u = Math.acos(redot / e / rl);
 			}
 			// bring into correct range via simple check
-			var m = this._m = this._B < 0 ? (TAU - u) : u;
+			var m = orbit._m = orbit._B < 0 ? (TAU - u) : u;
 
 			// calculate eccentric anomaly
-			var E = this._E = CYCLE(Math.atan2(
+			var E = orbit._E = CYCLE(Math.atan2(
 				Math.sqrt(1 - e * e) * Math.sin(m),
 				e + Math.cos(m)
 			));
 
 			// calculate mean anomaly
-			this._M = E - e * Math.sin(E);
+			orbit._M = E - e * Math.sin(E);
 
 		}
 		// EO state vectors
@@ -280,27 +287,27 @@
 		// Called pi (W) in VSOP87
 		// k = e*cos(W) [rad]
 		// h = e*sin(W) [rad]
-		if ('_k' in this && '_h' in this) {
+		if ('_k' in orbit && '_h' in orbit) {
 			// periapsis longitude directly from p and q
-			this._W = Math.atan2(this._h, this._k);
-			// this._e = this._k / Math.cos(this._W);
-			this._e = this._h / Math.sin(this._W);
+			orbit._W = Math.atan2(orbit._h, orbit._k);
+			// orbit._e = orbit._k / Math.cos(orbit._W);
+			orbit._e = orbit._h / Math.sin(orbit._W);
 		}
 
 		// VSOP arguments (q/p -> O/i)
 		// Called omega (O) in VSOP87
 		// q = sin(i/2)*cos(O) [rad]
 		// p = sin(i/2)*sin(O) [rad]
-		if ('_q' in this && '_p' in this) {
+		if ('_q' in orbit && '_p' in orbit) {
 			// ascending node directly from p and q
-			this._O = Math.atan2(this._p, this._q);
+			orbit._O = Math.atan2(orbit._p, orbit._q);
 			// values for inclination
-			var d = this._p - this._q,
+			var d = orbit._p - orbit._q,
 				// using the faster but equivalent form for
-				// dt = Math.sin(this._O) - Math.cos(this._O);
-				dt = - Math.sqrt(2) * Math.sin(PI / 4 - this._O);
+				// dt = Math.sin(orbit._O) - Math.cos(orbit._O);
+				dt = - Math.sqrt(2) * Math.sin(PI / 4 - orbit._O);
 			// now calculate inclination
-			this._i = 2 * Math.asin(d / dt);
+			orbit._i = 2 * Math.asin(d / dt);
 		}
 
 		/********************************************************/
@@ -308,14 +315,14 @@
 		// more stuff is calculated later on
 		/********************************************************/
 
-		if ('_n' in this && !('_a' in this)) {
+		if ('_n' in orbit && !('_a' in orbit)) {
 			// mean motion is translated directly to size via
-			this._a = Math.cbrt(this._G / this._n / this._n);
+			orbit._a = Math.cbrt(orbit._G / orbit._n / orbit._n);
 		}
-		if ('_P' in this && !('_a' in this)) {
+		if ('_P' in orbit && !('_a' in orbit)) {
 			// period is translated directly to size via G
-			var PTAU = this._P / TAU; // reuse for square
-			this._a = Math.cbrt(this._G * PTAU * PTAU);
+			var PTAU = orbit._P / TAU; // reuse for square
+			orbit._a = Math.cbrt(orbit._G * PTAU * PTAU);
 		}
 
 		/********************************************************/
@@ -323,15 +330,15 @@
 		// from apocenter and pericenter
 		// C = a * (1 + e), c = a * (1 - e)
 		/********************************************************/
-		if (!('_a' in this)) { // semi-major axis
-			if ('_c' in this && '_C' in this) { this._a = (this._C + this._c) / 2; }
-			else if ('_e' in this && '_C' in this) { this._a = this._C / (1 + this._e); }
-			else if ('_c' in this && '_e' in this) { this._a = this._c / (1 - this._e); }
+		if (!('_a' in orbit)) { // semi-major axis
+			if ('_c' in orbit && '_C' in orbit) { orbit._a = (orbit._C + orbit._c) / 2; }
+			else if ('_e' in orbit && '_C' in orbit) { orbit._a = orbit._C / (1 + orbit._e); }
+			else if ('_c' in orbit && '_e' in orbit) { orbit._a = orbit._c / (1 - orbit._e); }
 		}
-		if (!('_e' in this)) { // eccentricity
-			if ('_c' in this && '_C' in this) { this._e = 1 - this._c / this._a; }
-			else if ('_a' in this && '_C' in this) { this._e = this._C / this._a - 1; }
-			else if ('_c' in this && '_a' in this) { this._e = 1 - this._c / this._a; }
+		if (!('_e' in orbit)) { // eccentricity
+			if ('_c' in orbit && '_C' in orbit) { orbit._e = 1 - orbit._c / orbit._a; }
+			else if ('_a' in orbit && '_C' in orbit) { orbit._e = orbit._C / orbit._a - 1; }
+			else if ('_c' in orbit && '_a' in orbit) { orbit._e = 1 - orbit._c / orbit._a; }
 		}
 
 		/********************************************************/
@@ -344,58 +351,58 @@
 		/********************************************************/
 
 		// 3 valid options with e
-		if ('_e' in this) {
-			var e2term = 1 - this._e * this._e;
-			if ('_a' in this) {
-				this._l = this._a * e2term;
-				this._b = Math.sqrt(this._a * this._l);
+		if ('_e' in orbit) {
+			var e2term = 1 - orbit._e * orbit._e;
+			if ('_a' in orbit) {
+				orbit._l = orbit._a * e2term;
+				orbit._b = Math.sqrt(orbit._a * orbit._l);
 			}
-			else if ('_b' in this) {
-				this._a = this._b / Math.sqrt(e2term);
-				this._l = this._a * e2term;
+			else if ('_b' in orbit) {
+				orbit._a = orbit._b / Math.sqrt(e2term);
+				orbit._l = orbit._a * e2term;
 			}
-			else if ('_l' in this) {
-				this._a = this._l / e2term;
-				this._b = Math.sqrt(this._a * this._l);
+			else if ('_l' in orbit) {
+				orbit._a = orbit._l / e2term;
+				orbit._b = Math.sqrt(orbit._a * orbit._l);
 			}
 		}
 		// 2 valid options with a
-		else if ('_a' in this) {
-			if ('_b' in this) {
-				this._l = this._b * this._b / this._a;
-				this._e = Math.sqrt(1 - this._l / this._a);
+		else if ('_a' in orbit) {
+			if ('_b' in orbit) {
+				orbit._l = orbit._b * orbit._b / orbit._a;
+				orbit._e = Math.sqrt(1 - orbit._l / orbit._a);
 			}
-			else if ('_l' in this) {
-				this._e = Math.sqrt(1 - this._l / this._a);
-				this._b = Math.sqrt(this._a * this._l);
+			else if ('_l' in orbit) {
+				orbit._e = Math.sqrt(1 - orbit._l / orbit._a);
+				orbit._b = Math.sqrt(orbit._a * orbit._l);
 			}
 		}
 		// only one valid options left
-		else if ('_b' in this && '_l' in this) {
-			this.a = this._b * this._b / this._l;
-			this._e = Math.sqrt(1 - this._l / this._a);
+		else if ('_b' in orbit && '_l' in orbit) {
+			orbit.a = orbit._b * orbit._b / orbit._l;
+			orbit._e = Math.sqrt(1 - orbit._l / orbit._a);
 		}
 
 		// calculate orbital period (P)
-		if ('_a' in this && !('_P' in this)) {
+		if ('_a' in orbit && !('_P' in orbit)) {
 			// calculate dependants via gravitational parameter
-			this._P = (TAU / Math.sqrt(this._G)) * Math.pow(this._a, 1.5);
+			orbit._P = (TAU / Math.sqrt(orbit._G)) * Math.pow(orbit._a, 1.5);
 		}
 		// calculate mean motion (n)
-		if ('_P' in this && !('_n' in this)) {
-			this._n = TAU / this._P;
+		if ('_P' in orbit && !('_n' in orbit)) {
+			orbit._n = TAU / orbit._P;
 		}
 		// specific relative angular momentum (A)
-		if ('_P' in this && !('_A' in this)) {
-			if ('_a' in this && '_b' in this) {
-				this._A = TAU * this._a * this._b / this._P;
+		if ('_P' in orbit && !('_A' in orbit)) {
+			if ('_a' in orbit && '_b' in orbit) {
+				orbit._A = TAU * orbit._a * orbit._b / orbit._P;
 			}
 		}
 
 		// apsis from eccentricity and semi-major axis
-		if ('_a' in this && '_e' in this) {
-			if (!('_c' in this)) this._c = this._a * (1 - this._e);
-			if (!('_C' in this)) this._C = this._a * (1 + this._e);
+		if ('_a' in orbit && '_e' in orbit) {
+			if (!('_c' in orbit)) orbit._c = orbit._a * (1 - orbit._e);
+			if (!('_C' in orbit)) orbit._C = orbit._a * (1 + orbit._e);
 		}
 
 		/********************************************************/
@@ -406,84 +413,84 @@
 		/********************************************************/
 
 		// 5 valid options with L
-		if ('_L' in this) {
-			if ('_M' in this) {
+		if ('_L' in orbit) {
+			if ('_M' in orbit) {
 				// calculate the main dependants
-				this._W = this._L - this._M;
+				orbit._W = orbit._L - orbit._M;
 				// calculate additional dependants
-				if ('_O' in this) this._w = this._W - this._O;
-				else if ('_w' in this) this._O = this._W - this._w;
+				if ('_O' in orbit) orbit._w = orbit._W - orbit._O;
+				else if ('_w' in orbit) orbit._O = orbit._W - orbit._w;
 			}
-			else if ('_W' in this) {
+			else if ('_W' in orbit) {
 				// calculate the main dependants
-				this._M = this._L - this._W;
+				orbit._M = orbit._L - orbit._W;
 				// calculate additional dependants
-				if ('_O' in this) this._w = this._W - this._O;
-				else if ('_w' in this) this._O = this._W - this._w;
+				if ('_O' in orbit) orbit._w = orbit._W - orbit._O;
+				else if ('_w' in orbit) orbit._O = orbit._W - orbit._w;
 			}
-			else if ('_O' in this && '_w' in this) {
+			else if ('_O' in orbit && '_w' in orbit) {
 				// calculate the main dependants
-				this._W = this._O + this._w;
-				this._M = this._L - this._W;
+				orbit._W = orbit._O + orbit._w;
+				orbit._M = orbit._L - orbit._W;
 			}
 			else {
 				throw ('Orbit incomplete')
 			}
 		}
 		// 2 valid options with O
-		else if ('_O' in this) {
-			if ('_w' in this) {
+		else if ('_O' in orbit) {
+			if ('_w' in orbit) {
 				// calculate the main dependants
-				this._W = this._O + this._w;
+				orbit._W = orbit._O + orbit._w;
 				// calculate additional dependants
-				if ('_M' in this) this._L = this._M + this._W;
+				if ('_M' in orbit) orbit._L = orbit._M + orbit._W;
 				// the L case is already handled in the very first if
-				// else if ('_L' in this) this._M = this._L - this._W;
+				// else if ('_L' in orbit) orbit._M = orbit._L - orbit._W;
 			}
-			else if ('_W' in this) {
+			else if ('_W' in orbit) {
 				// calculate the main dependants
-				this._w = this._W - this._O;
+				orbit._w = orbit._W - orbit._O;
 				// calculate additional dependants
-				if ('_M' in this) this._L = this._M + this._W;
+				if ('_M' in orbit) orbit._L = orbit._M + orbit._W;
 				// the L case is already handled in the very first if
-				// else if ('_L' in this) this._M = this._L - this._W;
+				// else if ('_L' in orbit) orbit._M = orbit._L - orbit._W;
 			}
 			else {
 				throw ('Orbit incomplete')
 			}
 		}
 		// only one valid options left
-		else if ('_M' in this && '_w' in this && '_W' in this) {
-			this._L = this._W + this._M;
-			this._O = this._W - this._w;
+		else if ('_M' in orbit && '_w' in orbit && '_W' in orbit) {
+			orbit._L = orbit._W + orbit._M;
+			orbit._O = orbit._W - orbit._w;
 		}
 
 		/********************************************************/
 		// optionally do expensive calculations
 		/********************************************************/
 
-		if (full) this.m();
+		if (full) orbit.m();
 
 		/********************************************************/
 		// do range corrections
 		/********************************************************/
 
 		// bring parameters into correct ranges
-		if ('_W' in this) this._W = TURN(this._W); // verified
-		if ('_L' in this) this._L = CYCLE(this._L); // verified
-		if ('_M' in this) this._M = CYCLE(this._M); // verified
-		if ('_O' in this) this._O = CYCLE(this._O); // verified
-		if ('_w' in this) this._w = TURN(this._w); // verified
+		if ('_W' in orbit) orbit._W = TURN(orbit._W); // verified
+		if ('_L' in orbit) orbit._L = CYCLE(orbit._L); // verified
+		if ('_M' in orbit) orbit._M = CYCLE(orbit._M); // verified
+		if ('_O' in orbit) orbit._O = CYCLE(orbit._O); // verified
+		if ('_w' in orbit) orbit._w = TURN(orbit._w); // verified
 
 		/********************************************************/
 		// TODO: better time epoch support
 		/********************************************************/
-		if ('_M' in this && '_n') {
-			this._T = - this._M / this._n;
+		if ('_M' in orbit && '_n') {
+			orbit._T = - orbit._M / orbit._n;
 		}
 
 		// chain-able
-		return this;
+		return orbit;
 
 	}
 
@@ -502,20 +509,22 @@
 	Klass.E = function eccentricAnomaly(dt)
 	{
 
+		var orbit = this;
+
 		// return cached
-		if ('_E' in this && !dt) {
-			return this._E;
+		if ('_E' in orbit && !dt) {
+			return orbit._E;
 		}
 
 		// basic parameters
-		var e = this._e, // must
-			m = this._m, // either
-			M = this._M; // ... or
+		var e = orbit._e, // must
+			m = orbit._m, // either
+			M = orbit._M; // ... or
 
 		// from true anomaly (m)
 		// much easier calculation
 		if (!dt && e != null && m != null) {
-			return this._E = CYCLE(Math.atan2(
+			return orbit._E = CYCLE(Math.atan2(
 				Math.sqrt(1 - e * e) * Math.sin(m),
 				e + Math.cos(m)
 			));
@@ -526,7 +535,7 @@
 		// more expensive solver loop
 		if (e != null && M != null) {
 			// advance mean anomaly for new time offset
-			if (dt) M = CYCLE(this._n * (dt - this._T));
+			if (dt) M = CYCLE(orbit._n * (dt - orbit._T - orbit._t));
 			// prepare for solution solver
 			var E = e < 0.8 ? M : PI, F;
 			var F = E - e * Math.sin(M) - M;
@@ -542,7 +551,7 @@
 			// clamp range
 			E = CYCLE(E);
 			// cache for zero time
-			if (!dt) this._E = E;
+			if (!dt) orbit._E = E;
 			// return result
 			return E;
 		}
@@ -562,25 +571,26 @@
 	/******************************************************************************/
 	Klass.m = function trueAnomaly(E)
 	{
+		var orbit = this;
 		if (arguments.length === 0) {
 			// return cached
-			if ('_m' in this) {
-				return this._m;
+			if ('_m' in orbit) {
+				return orbit._m;
 			}
 			// from eccentric anomaly
 			// most expensive step
-			var hE = this.E() / 2;
+			var hE = orbit.E() / 2;
 			// calculate the true anomaly
-			return this._m = CYCLE(2 * Math.atan2(
-				Math.sqrt(1 + this._e) * Math.sin(hE),
-				Math.sqrt(1 - this._e) * Math.cos(hE)
+			return orbit._m = CYCLE(2 * Math.atan2(
+				Math.sqrt(1 + orbit._e) * Math.sin(hE),
+				Math.sqrt(1 - orbit._e) * Math.cos(hE)
 			));
 		}
 		else {
 			// calculate the true anomaly
 			return CYCLE(2 * Math.atan2(
-				Math.sqrt(1 + this._e) * Math.sin(E / 2),
-				Math.sqrt(1 - this._e) * Math.cos(E / 2)
+				Math.sqrt(1 + orbit._e) * Math.sin(E / 2),
+				Math.sqrt(1 - orbit._e) * Math.cos(E / 2)
 			));
 		}
 	}
@@ -603,12 +613,13 @@
 	/******************************************************************************/
 	Klass.B = function radialVelocity()
 	{
+		var orbit = this;
 		// return cached value
-		if ('_B' in this) return this._B;
+		if ('_B' in orbit) return orbit._B;
 		// calculate state vectors
-		var r = this.r(), v = this.v();
+		var r = orbit.r(), v = orbit.v();
 		// get radial velocity from state vectors
-		return this._B = r.dot(v) / r.length();
+		return orbit._B = r.dot(v) / r.length();
 	};
 
 	/******************************************************************************/
@@ -623,16 +634,17 @@
 	/******************************************************************************/
 	Klass.e3 = function eccentricity3()
 	{
+		var orbit = this;
 		// return cached value
-		if ('_e3' in this) return this._e3;
+		if ('_e3' in orbit) return orbit._e3;
 		// force state vector calculation
-		var r = this.r(), v = this.v();
+		var r = orbit.r(), v = orbit.v();
 		if (r !== null && v !== null) {
-			return this._e3 = r.clone().multiplyScalar(
-				v.lengthSq() - (this._G / r.length())
+			return orbit._e3 = r.clone().multiplyScalar(
+				v.lengthSq() - (orbit._G / r.length())
 			).sub(
-				v.clone().multiplyScalar(r.length() * this.B())
-				).multiplyScalar(1 / this._G);
+				v.clone().multiplyScalar(r.length() * orbit.B())
+				).multiplyScalar(1 / orbit._G);
 		}
 	}
 
@@ -757,39 +769,43 @@
 	// q: sin(i/2)*cos(O) (vsop)
 	Klass.q = function vsopPeriapsis()
 	{
+		var orbit = this;
 		// return cached calculation
-		if ('_q' in this) return this._q;
+		if ('_q' in orbit) return orbit._q;
 		// calculation given in vsop87 example.f
-		return this._q = Math.cos(this._O)
-			* Math.sin(this._i / 2);
+		return orbit._q = Math.cos(orbit._O)
+			* Math.sin(orbit._i / 2);
 	};
 
 	// p: sin(i/2)*sin(O) (vsop)
 	Klass.p = function vsopApoapsis()
 	{
+		var orbit = this;
 		// return cached calculation
-		if ('_p' in this) return this._p;
+		if ('_p' in orbit) return orbit._p;
 		// calculation given in vsop87 example.f
-		return this._p = Math.sin(this._O)
-			* Math.sin(this._i / 2);
+		return orbit._p = Math.sin(orbit._O)
+			* Math.sin(orbit._i / 2);
 	};
 
 	// k: e*cos(W) (vsop)
 	Klass.k = function vsopK()
 	{
+		var orbit = this;
 		// return cached calculation
-		if ('_k' in this) return this._k;
+		if ('_k' in orbit) return orbit._k;
 		// calculation given in vsop87 example.f
-		return this._k = this._e * Math.cos(this._W);
+		return orbit._k = orbit._e * Math.cos(orbit._W);
 	};
 
 	// h: e*sin(W) (vsop)
 	Klass.h = function vsopH()
 	{
+		var orbit = this;
 		// return cached calculation
-		if ('_h' in this) return this._h;
+		if ('_h' in orbit) return orbit._h;
 		// calculation given in vsop87 example.f
-		return this._h = this._e * Math.sin(this._W);
+		return orbit._h = orbit._e * Math.sin(orbit._W);
 	};
 
 	/*############################################################################*/
@@ -802,18 +818,19 @@
 	// for dt = P, mean anomaly does not change
 	Klass.update = function update(dt)
 	{
+		var orbit = this;
 		// check if elements are already resolved
-		if (!this.elements) this.resolveElements(true);
+		if (!orbit.elements) orbit.resolveElements(true);
 		// advance mean anomaly for new time
-		this._M = CYCLE(this._n * (dt - this._T));
+		orbit._M = CYCLE(orbit._n * (dt - orbit._T));
 		// adjust mean longitude for new time
-		this._L = CYCLE(this._M + this._W);
+		orbit._L = CYCLE(orbit._M + orbit._W);
 		// reset dependent parameters
-		delete this._E; delete this._m;
+		delete orbit._E; delete orbit._m;
 		// invalidate state vectors
-		delete this._r; delete this._v;
+		delete orbit._r; delete orbit._v;
 		// chainable
-		return this;
+		return orbit;
 	}
 
 	/*
@@ -830,23 +847,25 @@
 	Klass.state = function state(dt)
 	{
 
+		var orbit = this, mat;
+
 		// check if elements are already resolved
-		if (!this.elements) this.resolveElements(true);
+		if (!orbit.elements) orbit.resolveElements(true);
 
 		dt = dt || 0; // time offset
 		// return cached result for our epoch
 		// ToDo: also cache last epoch offsets?
-		if (!dt && '_r' in this && '_v' in this)
-		{ return { r: this._r, v: this._v, time: dt, orbit: this }; }
+		if (!dt && '_r' in orbit && '_v' in orbit)
+		{ return { r: orbit._r, v: orbit._v, time: dt, orbit: orbit }; }
 
-		var e = this._e, a = this._a, i = this._i,
-			O = this._O, w = this._w, M = this._M,
-			E = this.E(dt), // eccentric anomaly
-			m = this.m(E); // true anomaly
+		var e = orbit._e, a = orbit._a, i = orbit._i,
+			O = orbit._O, w = orbit._w, M = orbit._M,
+			E = orbit.E(dt), // eccentric anomaly
+			m = orbit.m(E); // true anomaly
 
 		// Distance to true anomaly position
 		var r = a * (1.0 - e * Math.cos(E));
-		var vf = Math.sqrt(this._G * a) / r;
+		var vf = Math.sqrt(orbit._G * a) / r;
 
 		// Perifocal reference plane
 		var rx = r * Math.cos(m),
@@ -880,11 +899,11 @@
 			vx * FzX + vy * FzY
 		);
 		// cache results if no time offset
-		if (!dt) this._r = r, this._v = v;
+		if (!dt) orbit._r = r, orbit._v = v;
 		// return result object with reference
 		// ToDo: maybe add position object
 		// To calculate ra/dec and more stuff
-		return { r: r, v: v, time: dt, orbit: this };
+		return { r: r, v: v, time: dt, orbit: orbit };
 
 	}
 	// EO state

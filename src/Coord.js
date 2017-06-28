@@ -37,6 +37,7 @@
 	function sph2cart()
 	{
 		var rsb = this.r * Math.sin(this.i);
+		// var rsb = this.r * Math.cos(this.b);
 		this.x = rsb * Math.cos(this.l);
 		this.y = rsb * Math.sin(this.l);
 		this.z = this.r * Math.cos(this.i);
@@ -85,6 +86,10 @@
 	/******************************************************************************/
 	function Coord(state)
 	{
+		// allow input also in some other form
+		if ('ra' in state) state.l = state.ra;
+		if ('dec' in state) state.b = state.dec;
+		if ('dist' in state) state.r = state.dist;
 		// from Cartesian coordinates
 		if ('x' in state && 'y' in state && 'z' in state) {
 			this.x = state.x, this.y = state.y, this.z = state.z;
@@ -96,9 +101,9 @@
 			this.cart = cyl2cart, this.sph = cyl2sph, this.cyl = cyl;
 		}
 		// from Spherical coordinates
-		else if ('l' in state && 'r' in state) {
+		else if ('l' in state /* && 'r' in state */) {
 			// store given parameters, then ...
-			this.l = state.l, this.r = state.r;
+			this.l = state.l, this.r = state.r || 1;
 			// ... inclination or elevation
 			if ('i' in state || 'b' in state) {
 				this.cart = sph2cart, this.sph = sph, this.cyl = sph2cyl;
@@ -106,8 +111,6 @@
 				else if ('i' in state) this.i = state.i, this.b = PI/2 - this.i;
 			}
 		}
-		// ToDo: error out on invalid input?
-		// Silently ignores ra/dec without dist!
 	}
 
 	/*############################################################################*/

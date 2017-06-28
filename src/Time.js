@@ -300,7 +300,7 @@
 	    FST3 = 0.000387933 * DEG2RAD,
 	    FST4 = - DEG2RAD / 38710000.0,
 	    // ratio longitude nutation
-	    FLON = 15.0 * DEG2HMS;
+	    FLON = 1; // 15.0 * DEG2HMS;
 
 	// returns rad (you want HMS?)
 	function getMeanSiderealTime(JD)
