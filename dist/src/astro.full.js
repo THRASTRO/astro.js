@@ -3106,7 +3106,7 @@ if (!this.THREE) {
 	
 	} );
 
-	var THREE = {
+	this.THREE = {
 		Euler: Euler,
 		Vector3: Vector3,
 		Matrix3: Matrix3,
@@ -3314,9 +3314,12 @@ Math.fmod = Math.fmod || function (a, b)
 {
 	return a % b;
 }
-// THREE.Vector3 compatible implementation
+// THREEJS compatible implementation
 if (typeof THREE != "undefined") {
-	this.Vector3 = THREE.Vector3;
+	var Vector3 = this.Vector3 = THREE.Vector3;
+	var Matrix3 = this.Matrix3 = THREE.Matrix3;
+	var Matrix4 = this.Matrix4 = THREE.Matrix4;
+	var Quaternion = this.Quaternion = THREE.Quaternion;
 }
 ;
 /*############################################################################*/
@@ -4938,4 +4941,4 @@ if (typeof THREE != "undefined") {
 })(this);
 ;
 }).call(this, this)
-/* crc: 06E39DED288C1CB3FD25EAE7E4949CDD */
+/* crc: 51C163A72767E40EEA38144EBD9AD827 */

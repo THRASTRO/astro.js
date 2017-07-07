@@ -196,7 +196,10 @@ Math.fmod = Math.fmod || function (a, b)
 {
 	return a % b;
 }
-// THREE.Vector3 compatible implementation
+// THREEJS compatible implementation
 if (typeof THREE != "undefined") {
-	this.Vector3 = THREE.Vector3;
+	var Vector3 = this.Vector3 = THREE.Vector3;
+	var Matrix3 = this.Matrix3 = THREE.Matrix3;
+	var Matrix4 = this.Matrix4 = THREE.Matrix4;
+	var Quaternion = this.Quaternion = THREE.Quaternion;
 }
