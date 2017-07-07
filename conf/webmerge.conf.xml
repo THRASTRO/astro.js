@@ -29,7 +29,7 @@
 			<prefix path="conf/license.header.txt" />
 			<prefix>/* Vector3 implementation included */</prefix>
 			<prepend>(function(window) {</prepend>
-			<input path="lib/Vector3.js" />
+			<input path="lib/three.math.js" />
 			<input path="src/Math.js" />
 			<input path="src/Orbit.js" />
 			<input path="src/Time.js" />
@@ -37,8 +37,8 @@
 			<append>}).call(this, this)</append>
 
 			<!-- where to store the resulting files -->
-			<output path="dist/src/astro.js" target="join" />
-			<output path="dist/min/astro.js" target="compile" />
+			<output path="dist/src/astro.full.js" target="join" />
+			<output path="dist/min/astro.full.min.js" target="compile" />
 
 		</js>
 
@@ -54,8 +54,8 @@
 			<append>}).call(this, this)</append>
 
 			<!-- where to store the resulting files -->
-			<output path="dist/src/astro.three.js" target="join" />
-			<output path="dist/min/astro.three..js" target="compile" />
+			<output path="dist/src/astro.bare.js" target="join" />
+			<output path="dist/min/astro.bare.min.js" target="compile" />
 
 		</js>
 
