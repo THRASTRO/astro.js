@@ -8,7 +8,12 @@ Astronomical Calculations (https://github.com/mgreter/astro.js)
 (function(window) {;
 // THREE.js Math "Polyfill"
 
-if (!this.THREE) {
+(function() {
+
+	// exit early
+	if (this.THREE) {
+		return;
+	}
 
 	/**
 	 * @author alteredq / http://alteredqualia.com/
@@ -3114,7 +3119,7 @@ if (!this.THREE) {
 		Quaternion: Quaternion,
 	};
 
-}
+})()
 ;
 /*############################################################################*/
 // AstroJS Base Math Module (c) 2016 by Marcel Greter
@@ -3476,6 +3481,7 @@ if (typeof THREE != "undefined") {
 		if (!('_L' in orbit)) throw ('Orbit is missing mean longitude (L)');
 		if (!('_O' in orbit)) throw ('Orbit is missing right ascending node (O)');
 		if (!('_T' in orbit)) throw ('Orbit is missing time of periapsis (w)');
+		if (!('_t' in orbit)) throw ('Orbit is missing time of reference epoch (t)');
 		if (!('_w' in orbit)) throw ('Orbit is missing argument of periapsis (w)');
 		if (!('_W' in orbit)) throw ('Orbit is missing longitude of the periapsis (W)');
 		if (!('_n' in orbit)) throw ('Orbit is missing mean motion (n)');
@@ -3590,11 +3596,26 @@ if (typeof THREE != "undefined") {
 			// bring into correct range via simple check
 			var m = orbit._m = orbit._B < 0 ? (TAU - u) : u;
 
-			// calculate eccentric anomaly
-			var E = orbit._E = CYCLE(Math.atan2(
-				Math.sqrt(1 - e * e) * Math.sin(m),
-				e + Math.cos(m)
-			));
+			// for elliptic orbits
+			if (e < 1) {
+				// calculate eccentric anomaly
+				var E = orbit._E = CYCLE(Math.atan2(
+					Math.sqrt(1 - e * e) * Math.sin(m),
+					e + Math.cos(m)
+				));
+				// calculate mean anomaly
+				orbit._M = E - e * Math.sin(E);
+			}
+			// for hyperbolic orbits
+			else if (e > 1) {
+				// calculate eccentric anomaly
+				var E = orbit._E = CYCLE(Math.atan2(
+					Math.sqrt(1 - e * e) * Math.sin(m),
+					e + Math.cos(m)
+				));
+				// calculate mean anomaly
+				orbit._M = E - e * Math.sin(E);
+			}
 
 			// calculate mean anomaly
 			orbit._M = E - e * Math.sin(E);
@@ -3834,6 +3855,7 @@ if (typeof THREE != "undefined") {
 	{
 
 		var orbit = this;
+		var epoch = orbit._t || 0;
 
 		// return cached
 		if ('_E' in orbit && !dt) {
@@ -3859,7 +3881,7 @@ if (typeof THREE != "undefined") {
 		// more expensive solver loop
 		if (e != null && M != null) {
 			// advance mean anomaly for new time offset
-			if (dt) M = CYCLE(orbit._n * (dt - orbit._T - orbit._t));
+			if (dt) M = CYCLE(orbit._n * (dt - orbit._T - epoch));
 			// prepare for solution solver
 			var E = e < 0.8 ? M : PI, F;
 			var F = E - e * Math.sin(M) - M;
@@ -4172,6 +4194,7 @@ if (typeof THREE != "undefined") {
 	{
 
 		var orbit = this, mat;
+		var epoch = orbit._t || 0;
 
 		// check if elements are already resolved
 		if (!orbit.elements) orbit.resolveElements(true);
@@ -4180,7 +4203,16 @@ if (typeof THREE != "undefined") {
 		// return cached result for our epoch
 		// ToDo: also cache last epoch offsets?
 		if (!dt && '_r' in orbit && '_v' in orbit)
-		{ return { r: orbit._r, v: orbit._v, time: dt, orbit: orbit }; }
+		{
+			// state result
+			return {
+				time: dt,
+				r: orbit._r,
+				v: orbit._v,
+				epoch: epoch,
+				orbit: orbit
+			};
+		}
 
 		var e = orbit._e, a = orbit._a, i = orbit._i,
 			O = orbit._O, w = orbit._w, M = orbit._M,
@@ -4227,7 +4259,13 @@ if (typeof THREE != "undefined") {
 		// return result object with reference
 		// ToDo: maybe add position object
 		// To calculate ra/dec and more stuff
-		return { r: r, v: v, time: dt, orbit: orbit };
+		return {
+			r: r,
+			v: v,
+			time: dt,
+			epoch: epoch,
+			orbit: orbit
+		};
 
 	}
 	// EO state
@@ -4941,4 +4979,4 @@ if (typeof THREE != "undefined") {
 })(this);
 ;
 }).call(this, this)
-/* crc: 51C163A72767E40EEA38144EBD9AD827 */
+/* crc: 9466056149403BFA68F85DB99FD01CE5 */
