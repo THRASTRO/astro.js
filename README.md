@@ -102,7 +102,7 @@ b: semiMinorAxis
 l: semilatusRectum
 L: meanLongitude
 O: ascendingNode
-w: argOfPericenter
+w: argOfPeriapsis
 T: timeOfPericenter
 W: longitudeOfPericenter
 n: meanMotion

@@ -979,6 +979,7 @@
 	Klass.meanLongitude = Klass.L;
 	Klass.ascendingNode = Klass.O;
 	Klass.argOfPericenter = Klass.w;
+	Klass.argOfPeriapsis = Klass.w;
 	Klass.timeOfPericenter = Klass.T;
 	Klass.longitudeOfPericenter = Klass.W;
 	Klass.meanMotion = Klass.n;
