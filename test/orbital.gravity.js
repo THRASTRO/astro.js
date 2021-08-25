@@ -11,7 +11,7 @@
 			X: 3.8589872,
 			Y: 4.2763114,
 			Z: -4.8070493,
-			G: 398600.44
+			GM: 398600.44
 		});
 
 		var cloned = orbit.clone(10);
@@ -55,7 +55,7 @@
 			);
 
 			assert.close(
-				orbit.L() * RAD2DEG, 344.01120082626187, 1e-2,
+				orbit.L() * RAD2DEG, 344.01120082626187, 1e-6,
 				"State vector to mean longitude (L)"
 			);
 
@@ -75,12 +75,12 @@
 			);
 
 			assert.close(
-				orbit.W() * RAD2DEG, -10.960123956443512, 1e-2,
+				orbit.W() * RAD2DEG, -10.960123956443512, 1e-6,
 				"State vector to longitude of pericenter (W)"
 			);
 
 			assert.close(
-				orbit.n() * RAD2DEG, 0.05786856452419324, 1e-2,
+				orbit.n() * RAD2DEG, 0.05786856452419324, 1e-6,
 				"State vector to mean motion (n)"
 			);
 
@@ -115,38 +115,38 @@
 			);
 
 			assert.close(
-				orbit.C(), 7427.686218831075, 1e-2,
+				orbit.C(), 7427.686218831075, 1e-6,
 				"State vector to distance of pericenter (C)"
 			);
 
 			assert.close(
-				orbit.C(), 7427.686218831075, 1e-2,
+				orbit.C(), 7427.686218831075, 1e-6,
 				"State vector to distance of apocenter (c)"
 			);
 
 			assert.close(
-				orbit.r().x, 5052.4587, 1e-2,
+				orbit.r().x, 5052.4587, 1e-6,
 				"State vector recalc position (x)"
 			);
 			assert.close(
-				orbit.r().y, 1056.2713, 1e-2,
+				orbit.r().y, 1056.2713, 1e-6,
 				"State vector recalc position (y)"
 			);
 			assert.close(
-				orbit.r().z, 5011.6366, 1e-2,
+				orbit.r().z, 5011.6366, 1e-6,
 				"State vector recalc position (z)"
 			);
 
 			assert.close(
-				orbit.v().x, 3.8589872, 1e-2,
+				orbit.v().x, 3.8589872, 1e-6,
 				"State vector recalc velocity (x)"
 			);
 			assert.close(
-				orbit.v().y, 4.2763114, 1e-2,
+				orbit.v().y, 4.2763114, 1e-6,
 				"State vector recalc velocity (y)"
 			);
 			assert.close(
-				orbit.v().z, -4.8070493, 1e-2,
+				orbit.v().z, -4.8070493, 1e-6,
 				"State vector recalc velocity (z)"
 			);
 
@@ -192,7 +192,7 @@
 			);
 
 			assert.close(
-				cloned.L() * RAD2DEG, 344.58988647150386, 1e-2,
+				cloned.L() * RAD2DEG, 344.58988647150386, 1e-6,
 				"State vector to mean longitude (L)"
 			);
 
@@ -212,17 +212,17 @@
 			);
 
 			assert.close(
-				cloned.W() * RAD2DEG, -10.960123956443512, 1e-2,
+				cloned.W() * RAD2DEG, -10.960123956443512, 1e-6,
 				"State vector to longitude of pericenter (W)"
 			);
 
 			assert.close(
-				cloned.n() * RAD2DEG, 0.05786856452419324, 1e-2,
+				cloned.n() * RAD2DEG, 0.05786856452419324, 1e-6,
 				"State vector to mean motion (n)"
 			);
 
 			assert.close(
-				cloned.M() * RAD2DEG, 355.55001042794737, 1e-2,
+				cloned.M() * RAD2DEG, 355.55001042794737, 1e-6,
 				"State vector to mean anomaly (M)"
 			);
 
@@ -237,7 +237,7 @@
 			);
 
 			assert.close(
-				cloned.m() * RAD2DEG, 355.4049928137755, 1e-2,
+				cloned.m() * RAD2DEG, 355.4049928137755, 1e-6,
 				"State vector to true anomaly (m)"
 			);
 
@@ -247,43 +247,43 @@
 			);
 
 			assert.close(
-				cloned.E() * RAD2DEG , 355.47779398375076, 1e-2,
+				cloned.E() * RAD2DEG , 355.47779398375076, 1e-6,
 				"State vector to eccentric anomaly (E)"
 			);
 
 			assert.close(
-				cloned.C(), 7427.686218831075, 1e-2,
+				cloned.C(), 7427.686218831075, 1e-6,
 				"State vector to distance of pericenter (C)"
 			);
 
 			assert.close(
-				cloned.C(), 7427.686218831075, 1e-2,
+				cloned.C(), 7427.686218831075, 1e-6,
 				"State vector to distance of apocenter (c)"
 			);
 
 			assert.close(
-				cloned.r().x, 5090.7774707576045, 1e-2,
+				cloned.r().x, 5090.7774707576045, 1e-6,
 				"State vector recalc position (x)"
 			);
 			assert.close(
-				cloned.r().y, 1098.9771183585046, 1e-2,
+				cloned.r().y, 1098.9771183585046, 1e-6,
 				"State vector recalc position (y)"
 			);
 			assert.close(
-				cloned.r().z, 4963.29873666537, 1e-2,
+				cloned.r().z, 4963.29873666537, 1e-6,
 				"State vector recalc position (z)"
 			);
 
 			assert.close(
-				cloned.v().x, 3.8046961084148414, 1e-2,
+				cloned.v().x, 3.8046961084148414, 1e-4,
 				"State vector recalc velocity (x)"
 			);
 			assert.close(
-				cloned.v().y, 4.264773647122109, 1e-2,
+				cloned.v().y, 4.264773647122109, 1e-4,
 				"State vector recalc velocity (y)"
 			);
 			assert.close(
-				cloned.v().z, -4.86043482005546, 1e-2,
+				cloned.v().z, -4.86043482005546, 1e-4,
 				"State vector recalc velocity (z)"
 			);
 

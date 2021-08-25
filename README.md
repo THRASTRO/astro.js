@@ -23,7 +23,7 @@ other units are linked to each other. This means that you can change
 the units by adjusting the gravitational parameter. We use the solar
 gravitational parameter by default with the units: `au^3/(solm*day^2)`.
 Normally in physics this parameter is measured in `m^3/(kg*s^2)`. All
-distance and time units must therefore be in the same units as `G`.
+distance and time units must therefore be in the same units as `GM`.
 
 ## Orbit Constructors
 
@@ -38,8 +38,8 @@ orbits.push({
 	O: 0.8649518974751991, // rad
 	W: -0.4171558510055842, // rad
 	L: 6.203874882756421 // rad
-	// default G is the sun with au and d
-	// G: 2.9591220836841438269e-04
+	// default GM is the sun with au and d
+	// GM: 2.9591220836841438269e-04
 });
 
 // satellite orbiting earth
@@ -50,8 +50,8 @@ var orbit = new Orbit({
 	X: 3.8589872, // km/s
 	Y: 4.2763114, // km/s
 	Z: -4.8070493, // km/s
-	// this G is for the earth in km and s
-	G: 398600.44
+	// this GM is for the earth in km and s
+	GM: 398600.44
 });
 
 // from orbital state vectors
@@ -109,6 +109,7 @@ n: meanMotion
 M: meanAnomaly
 P: orbitalPeriod
 A: angularMomentum
+GM: gravitationalParameter
 ```
 
 ### additional orbital elements only on demand
@@ -279,6 +280,16 @@ The orbital period is the time taken for a given object to make one
 complete orbit around another object. When mentioned without further
 qualification in astronomy this refers to the sidereal period of an
 astronomical object, which is calculated with respect to the stars.
+
+### `GM = function gravitationalParameter()`
+In celestial mechanics, the standard gravitational parameter μ of a
+celestial body is the product of the gravitational constant G and
+the mass M of the body. For several objects in the Solar System,
+the value of μ is known to greater accuracy than either G or M.
+The SI units of the standard gravitational parameter are m3 s−2.
+However, units of km3 s−2 are frequently used in the scientific
+literature and in spacecraft navigation. AstroJS normally will
+use units of AU3 and julian days or years (e.g. AstroJS.GMJY).
 
 ### `epoch = function epoch()`
 In chronology and periodization, an epoch or reference epoch is an

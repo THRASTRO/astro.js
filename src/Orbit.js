@@ -42,7 +42,7 @@
 	// the units by adjusting the gravitational parameter. We use the solar
 	// gravitational parameter by default with the units: au^3/(solm*day^2).
 	// Normally in physics this parameter is measured in m^3/(kg*s^2). All
-	// distance and time units must therefore be in the same units as `G`.
+	// distance and time units must therefore be in the same units as `GM`.
 	/******************************************************************************/
 	// ToDo: finish and add tests for circular and hyperbola orbits.
 	/******************************************************************************/
@@ -57,11 +57,14 @@
 			return orbit;
 		}
 
+		// Give a warning about passing renamed parameter G
+		if ('G' in arg) console.warn('G has been renamed to GM');
+
 		// the gravitational parameter is very important and must
 		// match all others in terms of the units. In physics the
 		// units are by default m^3/(kg*s^2), but for astronomical
 		// uses we most often want to use au^3/(solm*day^2).
-		orbit._G = arg.G || Orbit.GMP.sun,
+		orbit._GM = arg.GM || arg.G || Orbit.GMP.sun,
 			orbit._t = arg.epoch || arg.t || 0;
 		orbit.translate = arg.translate || null;
 
@@ -219,7 +222,7 @@
 		if ('_r' in orbit && '_v' in orbit) {
 
 			var r = orbit._r, v = orbit._v,
-				G = orbit._G, rl = r.length();
+				GM = orbit._GM, rl = r.length();
 
 			// specific relative angular momentum
 			orbit._A3 = r.clone().cross(v);
@@ -229,15 +232,15 @@
 			orbit._B = r.dot(v) / rl;
 
 			// calculate eccentricity vector
-			var e3 = orbit._e3 = r.clone().multiplyScalar(v.lengthSq() - (G / rl))
-				.sub(v.clone().multiplyScalar(rl * orbit._B)).multiplyScalar(1 / G);
+			var e3 = orbit._e3 = r.clone().multiplyScalar(v.lengthSq() - (GM / rl))
+				.sub(v.clone().multiplyScalar(rl * orbit._B)).multiplyScalar(1 / GM);
 			// get eccentricity value from vector
 			var e2 = e3.lengthSq(), e = orbit._e = sqrt(e2);
 			// get inclination (i) via orbital momentum vector
 			orbit._i = acos(orbit._A3.z / orbit._A);
 
 			// calculate semilatus rectum (ℓ)
-			orbit._l = orbit._A2 / G;
+			orbit._l = orbit._A2 / GM;
 			// and periapsis (c) and apoapsis (C)
 			orbit._c = orbit._l / (1 + e);
 			orbit._C = orbit._l / (1 - e);
@@ -349,12 +352,12 @@
 
 		if ('_n' in orbit && !('_a' in orbit)) {
 			// mean motion is translated directly to size via
-			orbit._a = cbrt(orbit._G / orbit._n / orbit._n);
+			orbit._a = cbrt(orbit._GM / orbit._n / orbit._n);
 		}
 		if ('_P' in orbit && !('_a' in orbit)) {
-			// period is translated directly to size via G
+			// period is translated directly to size via GM
 			var PTAU = orbit._P / TAU; // reuse for square
-			orbit._a = cbrt(orbit._G * PTAU * PTAU);
+			orbit._a = cbrt(orbit._GM * PTAU * PTAU);
 		}
 
 		/********************************************************/
@@ -418,7 +421,7 @@
 		// calculate orbital period (P)
 		if ('_a' in orbit && !('_P' in orbit)) {
 			// calculate dependants via gravitational parameter
-			orbit._P = (TAU / sqrt(orbit._G)) * pow(orbit._a, 1.5);
+			orbit._P = (TAU / sqrt(orbit._GM)) * pow(orbit._a, 1.5);
 		}
 		// calculate mean motion (n)
 		if ('_P' in orbit && !('_n' in orbit)) {
@@ -679,10 +682,10 @@
 		var r = orbit.r(), v = orbit.v();
 		if (r !== null && v !== null) {
 			return orbit._e3 = r.clone().multiplyScalar(
-				v.lengthSq() - (orbit._G / r.length())
+				v.lengthSq() - (orbit._GM / r.length())
 			).sub(
 				v.clone().multiplyScalar(r.length() * orbit.B())
-				).multiplyScalar(1 / orbit._G);
+				).multiplyScalar(1 / orbit._GM);
 		}
 	}
 
@@ -799,6 +802,16 @@
 	// astronomical object, which is calculated with respect to the stars.
 	Klass.P = function orbitalPeriod() { return this._P; }
 
+	// In celestial mechanics, the standard gravitational parameter μ of a
+	// celestial body is the product of the gravitational constant G and
+	// the mass M of the body. For several objects in the Solar System,
+	// the value of μ is known to greater accuracy than either G or M.
+	// The SI units of the standard gravitational parameter are m3 s−2.
+	// However, units of km3 s−2 are frequently used in the scientific
+	// literature and in spacecraft navigation. AstroJS normally will
+	// use units of AU3 and julian days or years (e.g. AstroJS.GMJY).
+	Klass.GM = function gravitationalParameter() { return this._GM; }
+
 	// In chronology and periodization, an epoch or reference epoch is an
 	// instant in time chosen as the origin of a particular calendar era.
 	// The "epoch" serves as a reference point from which time is measured. 
@@ -913,7 +926,8 @@
 				r: orbit._r,
 				v: orbit._v,
 				epoch: epoch,
-				orbit: orbit
+				orbit: orbit,
+				GM: orbit._GM
 			};
 		}
 
@@ -924,7 +938,7 @@
 
 		// Distance to true anomaly position
 		var r = a * (1.0 - e * cos(E));
-		var vf = sqrt(orbit._G * a) / r;
+		var vf = sqrt(orbit._GM * a) / r;
 
 		// Perifocal reference plane
 		var rx = r * cos(m),
@@ -967,7 +981,8 @@
 			r: r,
 			v: v,
 			epoch: epoch,
-			orbit: orbit
+			orbit: orbit,
+			GM: orbit._GM
 		};
 
 	}
@@ -1018,6 +1033,7 @@
 	Klass.meanAnomaly = Klass.M;
 	Klass.orbitalPeriod = Klass.P;
 	Klass.angularMomentum = Klass.A;
+	Klass.gravitationalParameter = Klass.GM;
 
 	// additional orbital elements only on demand
 	// these must not be used as orbital input arguments
