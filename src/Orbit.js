@@ -906,12 +906,13 @@
 			sinW = Math.sin(w), cosW = Math.cos(w),
 			sinWcosO = sinW * cosO, sinWsinO = sinW * sinO,
 			cosWcosO = cosW * cosO, cosWsinO = cosW * sinO,
-			FxX = (cosW * cosO - sinW * sinO * cosI),
-			FyX = (cosW * sinO + sinW * cosO * cosI),
-			FxY = (cosW * sinO * cosI + sinW * cosO),
-			FyY = (cosW * cosO * cosI - sinW * sinO),
-			FzX = (sinW * sinI),
-			FzY = (cosW * sinI);
+			sinWcosI = sinW * cosI,
+			FxX = cosWcosO - sinWcosI * sinO,
+			FyX = cosWsinO + sinWcosI * cosO,
+			FxY = cosWsinO * cosI + sinWcosO,
+			FyY = cosWcosO * cosI - sinWsinO,
+			FzX = sinW * sinI,
+			FzY = cosW * sinI;
 
 		// Equatorial position
 		var r = new Vector3(
