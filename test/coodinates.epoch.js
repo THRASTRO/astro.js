@@ -1001,7 +1001,7 @@
 						var prec = new Coord({ l: 0, b: 0, r: 1 })
 						var JD = equp[i][0], l = equp[i][2],
 						    epoch = equp[i][1], b = equp[i][3];
-						assert.ok(prec = prec.precess(JD2J2K(JD), JD2J2K(epoch)), 'JD : Precess to JD');
+						assert.ok(prec = prec.precess(JDtoJY2K(JD), JDtoJY2K(epoch)), 'JD : Precess to JD');
 						assert.close(prec.l * RAD2DEG, l, EPSILON, 'JD : Right Ascension (ra)');
 						assert.close(prec.b * RAD2DEG, b, EPSILON, 'JD : Declination (dec)');
 					}

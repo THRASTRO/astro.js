@@ -258,8 +258,8 @@
 			for (var i = 0; i < times.length; i += 1) {
 				var jd = 'JD' + parseInt(times[i][0] * 100) / 100
 				var jde = 'JDE' + parseInt(times[i][1] * 100) / 100
-				assert.close(JD2JDE(times[i][0]), times[i][1], 1e-4, jd + ': To Ephemeris Day (JD2JDE)');
-				assert.close(JDE2JD(times[i][1]), times[i][0], 1e-5, jde + ': Back to Julian Day (JDE2JD)');
+				assert.close(JDtoJDE(times[i][0]), times[i][1], 1e-4, jd + ': To Ephemeris Day (JDtoJDE)');
+				assert.close(JDEtoJD(times[i][1]), times[i][0], 1e-5, jde + ': Back to Julian Day (JDEtoJD)');
 			}
 		});
 

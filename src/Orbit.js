@@ -124,9 +124,12 @@
 	/******************************************************************************/
 
 	// copy existing orbit and return clone
-	Klass.clone = function clone(dt)
+	Klass.clone = function clone(jy2k)
 	{
 		var orbit = this;
+		var epoch = orbit._t || 0;
+		var dt = jy2k == null ?
+			0 :  jy2k - epoch;
 		// create an empty object (internal use)
 		var clone = new Orbit({ empty: true });
 		// avoid unnecessary cloning of objects
@@ -141,7 +144,7 @@
 			}
 		}
 		// optionally call update
-		if (dt) clone.update(dt);
+		if (dt) clone.update(jy2k);
 		// return copy
 		return clone;
 	}
@@ -535,11 +538,13 @@
 	// ("anomalies") that define a position along an orbit, the other two
 	// being the true anomaly (m) and the mean anomaly (M).
 	/******************************************************************************/
-	Klass.E = function eccentricAnomaly(dt)
+	Klass.E = function eccentricAnomaly(jy2k)
 	{
 
 		var orbit = this;
 		var epoch = orbit._t || 0;
+		var dt = jy2k == null ?
+			0 :  jy2k - epoch;
 
 		// return cached
 		if ('_E' in orbit && !dt) {
@@ -565,10 +570,13 @@
 		// more expensive solver loop
 		if (e != null && M != null) {
 			// advance mean anomaly for new time offset
-			if (dt) M = CYCLE(orbit._n * (dt - orbit._T - epoch));
+			if (dt) M += CYCLE(orbit._n * dt);
+			// NOTE: not sure why line below needs the if
+			// TODO: find a unit test to exhibit edge case
+			// if (!dt) M = CYCLE(orbit._n * (- orbit._T));
 			// prepare for solution solver
-			var E = e < 0.8 ? M : PI, F;
-			var F = E - e * sin(M) - M;
+			var E = e < 0.8 ? M : PI;
+			// var F = E - e * sin(M) - M;
 			// Newton-Raphson method to solve
 			// f(E) = M - E + e * sin(E) = 0
 			var f, dfdE, dE = 1;
@@ -791,6 +799,11 @@
 	// astronomical object, which is calculated with respect to the stars.
 	Klass.P = function orbitalPeriod() { return this._P; }
 
+	// In chronology and periodization, an epoch or reference epoch is an
+	// instant in time chosen as the origin of a particular calendar era.
+	// The "epoch" serves as a reference point from which time is measured. 
+	Klass.epoch = function epoch() { return this._t; }
+
 	/*############################################################################*/
 	// convert to vsop parameters (never seen them anywhere else)
 	// those are calculated on demand, so you need to call me first
@@ -846,9 +859,12 @@
 	// update orbital state for new epoch
 	// advance position and reset some states
 	// for dt = P, mean anomaly does not change
-	Klass.update = function update(dt)
+	Klass.update = function update(jy2k)
 	{
 		var orbit = this;
+		var epoch = orbit._t || 0;
+		var dt = jy2k == null ?
+			0 :  jy2k - epoch;
 		// check if elements are already resolved
 		if (!orbit.elements) orbit.resolveElements(true);
 		// advance mean anomaly for new time
@@ -865,8 +881,11 @@
 
 	/*
 	// orbital elements to spherical position (lon/lat/r)
-	Klass.sph = function spherical (dt)
+	Klass.sph = function spherical (jy2k)
 	{
+		var epoch = this._t || 0;
+		var dt = jy2k == null ?
+			0 :  jy2k - epoch;
 		// check if elements are already resolved
 		if (!this.elements) this.resolveElements(true);
 		dt = dt || 0; // time offset
@@ -874,23 +893,23 @@
 	*/
 
 	// orbital elements to rectangular position (x/y/z)
-	Klass.state = function state(dt)
+	Klass.state = function state(jy2k)
 	{
 
 		var orbit = this, mat;
 		var epoch = orbit._t || 0;
+		var dt = jy2k == null ?
+			0 :  jy2k - epoch;
 
 		// check if elements are already resolved
 		if (!orbit.elements) orbit.resolveElements(true);
 
-		dt = dt || 0; // time offset
 		// return cached result for our epoch
 		// ToDo: also cache last epoch offsets?
 		if (!dt && '_r' in orbit && '_v' in orbit)
 		{
 			// state result
 			return {
-				time: dt,
 				r: orbit._r,
 				v: orbit._v,
 				epoch: epoch,
@@ -900,7 +919,7 @@
 
 		var e = orbit._e, a = orbit._a, i = orbit._i,
 			O = orbit._O, w = orbit._w, M = orbit._M,
-			E = orbit.E(dt), // eccentric anomaly
+			E = orbit.E(jy2k), // eccentric anomaly
 			m = orbit.m(E); // true anomaly
 
 		// Distance to true anomaly position
@@ -947,7 +966,6 @@
 		return {
 			r: r,
 			v: v,
-			time: dt,
 			epoch: epoch,
 			orbit: orbit
 		};
@@ -960,21 +978,21 @@
 	/*############################################################################*/
 
 	// r: position state vector
-	Klass.r = function position3(dt)
+	Klass.r = function position3(jy2k)
 	{
 		// calculate at epoch time
 		// state will cache results
-		var state = this.state(dt);
+		var state = this.state(jy2k);
 		// return vector
 		return state.r;
 	}
 
 	// v: velocity state vector
-	Klass.v = function velocity3(dt)
+	Klass.v = function velocity3(jy2k)
 	{
 		// calculate at epoch time
 		// state will cache results
-		var state = this.state(dt);
+		var state = this.state(jy2k);
 		// return vector
 		return state.v;
 	}

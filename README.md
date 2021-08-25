@@ -280,6 +280,11 @@ complete orbit around another object. When mentioned without further
 qualification in astronomy this refers to the sidereal period of an
 astronomical object, which is calculated with respect to the stars.
 
+### `epoch = function epoch()`
+In chronology and periodization, an epoch or reference epoch is an
+instant in time chosen as the origin of a particular calendar era.
+The "epoch" serves as a reference point from which time is measured. 
+
 ### VSOP parameters
 ```
 // q: sin(i/2)*cos(O) (vsop)

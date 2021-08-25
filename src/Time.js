@@ -127,10 +127,10 @@
 		// c_JD = JD;
 
 		// get julian ephemeris day
-		var JDE = JD2JDE(JD);
+		var JDE = JD2toJDE(JD);
 
 		// calc T and dependants
-		var T = JD2J2K(JDE) / 100,
+		var T = JDtoJY2K(JDE) / 100,
 		    T2 = T * T, T3 = T2 * T;
 
 		// calculate D,M,M',F and Omega (convert to radians)
@@ -277,14 +277,14 @@
 	}
 
 	// Calculates the Julian Ephemeris Day(JDE)
-	function JD2JDE(JD)
+	function JDtoJDE(JD)
 	{
 		// from the given Julian Day (JD)
 		return JD + getDynamicalTimeDiff(JD) / JD2SEC;
 	}
 
 	// Calculates the Julian Day(JDE)
-	function JDE2JD(JDE)
+	function JDEtoJD(JDE)
 	{
 		// from the given Julian Ephemeris Day (JD)
 		return JDE - getDynamicalTimeDiff(JDE) / JD2SEC;
@@ -305,7 +305,7 @@
 	// returns rad (you want HMS?)
 	function getMeanSiderealTime(JD)
 	{
-		var T = JD2J2K(JD) / 100;
+		var T = JDtoJY2K(JD) / 100;
 		// calculate mean angle (in radians)
 		var sidereal = FST1 + FST2 *(JD - 2451545.0)
 			           + FST3 * T * T + FST4 * T * T * T;
@@ -331,8 +331,8 @@
 	/*############################################################################*/
 
 	// date converter
-	exports.JD2JDE = JD2JDE;
-	exports.JDE2JD = JDE2JD;
+	exports.JDtoJDE = JDtoJDE;
+	exports.JDEtoJD = JDEtoJD;
 
 	// sidereal time calculations
 	exports.getMeanSiderealTime = getMeanSiderealTime;

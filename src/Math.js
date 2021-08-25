@@ -152,17 +152,17 @@ AstroJS.TURN =
 		return rad;
 	}
 
-AstroJS.JD2J2K =
+AstroJS.JDtoJY2K =
 	// Julian Days to J2000
-	function JD2J2K(JD)
+	function JDtoJY2K(JD)
 	{
 		// offset epoch and add ratio
 		return (JD - JD2000) / JY2JD;
 	}
 
-AstroJS.J2K2JD =
+AstroJS.JY2KtoJD =
 	// J2000 to Julian Days
-	function J2K2JD(J2K)
+	function JY2KtoJD(J2K)
 	{
 		// add ratio and offset epoch
 		return J2K * JY2JD + JD2000;
