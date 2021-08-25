@@ -10,6 +10,19 @@
 (function (exports)
 {
 
+	// Alias for math functions
+	// Better compressibility
+	// Saves about 0.4kb
+	var abs = Math.abs;
+	var pow = Math.pow;
+	var sin = Math.sin;
+	var cos = Math.cos;
+	var sqrt = Math.sqrt;
+	var cbrt = Math.cbrt;
+	var atan2 = Math.atan2;
+	var asin = Math.asin;
+	var acos = Math.acos;
+
 	/******************************************************************************/
 	// Orbits can be created from orbital elements (6 independent parameters)
 	// or from state vectors (position and velocity). In both cases we need 6
@@ -208,7 +221,7 @@
 			// specific relative angular momentum
 			orbit._A3 = r.clone().cross(v);
 			orbit._A2 = orbit._A3.lengthSq();
-			orbit._A = Math.sqrt(orbit._A2);
+			orbit._A = sqrt(orbit._A2);
 			// calculate radial velocity
 			orbit._B = r.dot(v) / rl;
 
@@ -216,9 +229,9 @@
 			var e3 = orbit._e3 = r.clone().multiplyScalar(v.lengthSq() - (G / rl))
 				.sub(v.clone().multiplyScalar(rl * orbit._B)).multiplyScalar(1 / G);
 			// get eccentricity value from vector
-			var e2 = e3.lengthSq(), e = orbit._e = Math.sqrt(e2);
+			var e2 = e3.lengthSq(), e = orbit._e = sqrt(e2);
 			// get inclination (i) via orbital momentum vector
-			orbit._i = Math.acos(orbit._A3.z / orbit._A);
+			orbit._i = acos(orbit._A3.z / orbit._A);
 
 			// calculate semilatus rectum (ℓ)
 			orbit._l = orbit._A2 / G;
@@ -231,17 +244,17 @@
 			// pre-calculate node line
 			var nx = - orbit._A3.y,
 				ny = + orbit._A3.x;
-			var nl = Math.sqrt(nx * nx + ny * ny);
+			var nl = sqrt(nx * nx + ny * ny);
 
 			// calculate ascending node (O)
-			var omega = nl == 0 ? 0 : Math.acos(nx / nl);
+			var omega = nl == 0 ? 0 : acos(nx / nl);
 			orbit._O = ny < 0 ? (TAU - omega) : omega;
 
 			// calculate argument of periapsis (ω)
 			var nedot = nx * e3.x +
 				ny * e3.y;
 			if (nl === 0 || e === 0) { orbit._w = 0; }
-			else { orbit._w = Math.acos(nedot / nl / e); }
+			else { orbit._w = acos(nedot / nl / e); }
 			if (e3.z < 0) { orbit._w *= -1; }
 
 			// calculate true anomaly
@@ -250,19 +263,19 @@
 			// and without inclination
 			if (e === 0 && nl === 0) {
 				// orbit needs a test case
-				u = Math.acos(r.x / rl);
+				u = acos(r.x / rl);
 			}
 			// circular orbit
 			// with inclination
 			else if (e === 0) {
 				// orbit needs a test case
 				var nrdot = nx * r.x + ny * r.y;
-				u = Math.acos(nrdot / (nl * rl));
+				u = acos(nrdot / (nl * rl));
 			}
 			// elliptic orbit
 			else {
 				var redot = e3.x * r.x + e3.y * r.y + e3.z * r.z;
-				u = Math.acos(redot / e / rl);
+				u = acos(redot / e / rl);
 			}
 			// bring into correct range via simple check
 			var m = orbit._m = orbit._B < 0 ? (TAU - u) : u;
@@ -270,26 +283,26 @@
 			// for elliptic orbits
 			if (e < 1) {
 				// calculate eccentric anomaly
-				var E = orbit._E = CYCLE(Math.atan2(
-					Math.sqrt(1 - e * e) * Math.sin(m),
-					e + Math.cos(m)
+				var E = orbit._E = CYCLE(atan2(
+					sqrt(1 - e * e) * sin(m),
+					e + cos(m)
 				));
 				// calculate mean anomaly
-				orbit._M = E - e * Math.sin(E);
+				orbit._M = E - e * sin(E);
 			}
 			// for hyperbolic orbits
 			else if (e > 1) {
 				// calculate eccentric anomaly
-				var E = orbit._E = CYCLE(Math.atan2(
-					Math.sqrt(1 - e * e) * Math.sin(m),
-					e + Math.cos(m)
+				var E = orbit._E = CYCLE(atan2(
+					sqrt(1 - e * e) * sin(m),
+					e + cos(m)
 				));
 				// calculate mean anomaly
-				orbit._M = E - e * Math.sin(E);
+				orbit._M = E - e * sin(E);
 			}
 
 			// calculate mean anomaly
-			orbit._M = E - e * Math.sin(E);
+			orbit._M = E - e * sin(E);
 
 		}
 		// EO state vectors
@@ -305,9 +318,9 @@
 		// h = e*sin(W) [rad]
 		if ('_k' in orbit && '_h' in orbit) {
 			// periapsis longitude directly from p and q
-			orbit._W = Math.atan2(orbit._h, orbit._k);
-			// orbit._e = orbit._k / Math.cos(orbit._W);
-			orbit._e = orbit._h / Math.sin(orbit._W);
+			orbit._W = atan2(orbit._h, orbit._k);
+			// orbit._e = orbit._k / cos(orbit._W);
+			orbit._e = orbit._h / sin(orbit._W);
 		}
 
 		// VSOP arguments (q/p -> O/i)
@@ -316,14 +329,14 @@
 		// p = sin(i/2)*sin(O) [rad]
 		if ('_q' in orbit && '_p' in orbit) {
 			// ascending node directly from p and q
-			orbit._O = Math.atan2(orbit._p, orbit._q);
+			orbit._O = atan2(orbit._p, orbit._q);
 			// values for inclination
 			var d = orbit._p - orbit._q,
 				// using the faster but equivalent form for
-				// dt = Math.sin(orbit._O) - Math.cos(orbit._O);
-				dt = - Math.sqrt(2) * Math.sin(PI / 4 - orbit._O);
+				// dt = sin(orbit._O) - cos(orbit._O);
+				dt = - sqrt(2) * sin(PI / 4 - orbit._O);
 			// now calculate inclination
-			orbit._i = 2 * Math.asin(d / dt);
+			orbit._i = 2 * asin(d / dt);
 		}
 
 		/********************************************************/
@@ -333,12 +346,12 @@
 
 		if ('_n' in orbit && !('_a' in orbit)) {
 			// mean motion is translated directly to size via
-			orbit._a = Math.cbrt(orbit._G / orbit._n / orbit._n);
+			orbit._a = cbrt(orbit._G / orbit._n / orbit._n);
 		}
 		if ('_P' in orbit && !('_a' in orbit)) {
 			// period is translated directly to size via G
 			var PTAU = orbit._P / TAU; // reuse for square
-			orbit._a = Math.cbrt(orbit._G * PTAU * PTAU);
+			orbit._a = cbrt(orbit._G * PTAU * PTAU);
 		}
 
 		/********************************************************/
@@ -371,38 +384,38 @@
 			var e2term = 1 - orbit._e * orbit._e;
 			if ('_a' in orbit) {
 				orbit._l = orbit._a * e2term;
-				orbit._b = Math.sqrt(orbit._a * orbit._l);
+				orbit._b = sqrt(orbit._a * orbit._l);
 			}
 			else if ('_b' in orbit) {
-				orbit._a = orbit._b / Math.sqrt(e2term);
+				orbit._a = orbit._b / sqrt(e2term);
 				orbit._l = orbit._a * e2term;
 			}
 			else if ('_l' in orbit) {
 				orbit._a = orbit._l / e2term;
-				orbit._b = Math.sqrt(orbit._a * orbit._l);
+				orbit._b = sqrt(orbit._a * orbit._l);
 			}
 		}
 		// 2 valid options with a
 		else if ('_a' in orbit) {
 			if ('_b' in orbit) {
 				orbit._l = orbit._b * orbit._b / orbit._a;
-				orbit._e = Math.sqrt(1 - orbit._l / orbit._a);
+				orbit._e = sqrt(1 - orbit._l / orbit._a);
 			}
 			else if ('_l' in orbit) {
-				orbit._e = Math.sqrt(1 - orbit._l / orbit._a);
-				orbit._b = Math.sqrt(orbit._a * orbit._l);
+				orbit._e = sqrt(1 - orbit._l / orbit._a);
+				orbit._b = sqrt(orbit._a * orbit._l);
 			}
 		}
 		// only one valid options left
 		else if ('_b' in orbit && '_l' in orbit) {
 			orbit.a = orbit._b * orbit._b / orbit._l;
-			orbit._e = Math.sqrt(1 - orbit._l / orbit._a);
+			orbit._e = sqrt(1 - orbit._l / orbit._a);
 		}
 
 		// calculate orbital period (P)
 		if ('_a' in orbit && !('_P' in orbit)) {
 			// calculate dependants via gravitational parameter
-			orbit._P = (TAU / Math.sqrt(orbit._G)) * Math.pow(orbit._a, 1.5);
+			orbit._P = (TAU / sqrt(orbit._G)) * pow(orbit._a, 1.5);
 		}
 		// calculate mean motion (n)
 		if ('_P' in orbit && !('_n' in orbit)) {
@@ -541,9 +554,9 @@
 		// from true anomaly (m)
 		// much easier calculation
 		if (!dt && e != null && m != null) {
-			return orbit._E = CYCLE(Math.atan2(
-				Math.sqrt(1 - e * e) * Math.sin(m),
-				e + Math.cos(m)
+			return orbit._E = CYCLE(atan2(
+				sqrt(1 - e * e) * sin(m),
+				e + cos(m)
 			));
 		}
 
@@ -555,13 +568,13 @@
 			if (dt) M = CYCLE(orbit._n * (dt - orbit._T - epoch));
 			// prepare for solution solver
 			var E = e < 0.8 ? M : PI, F;
-			var F = E - e * Math.sin(M) - M;
+			var F = E - e * sin(M) - M;
 			// Newton-Raphson method to solve
 			// f(E) = M - E + e * sin(E) = 0
 			var f, dfdE, dE = 1;
-			for (var it = 0; Math.abs(dE) > EPSILON && it < MAXLOOP; ++it) {
-				f = M - E + e * Math.sin(E);
-				dfdE = e * Math.cos(E) - 1.0;
+			for (var it = 0; abs(dE) > EPSILON && it < MAXLOOP; ++it) {
+				f = M - E + e * sin(E);
+				dfdE = e * cos(E) - 1.0;
 				dE = f / dfdE;
 				E -= dE; // next iteration
 			}
@@ -598,16 +611,16 @@
 			// most expensive step
 			var hE = orbit.E() / 2;
 			// calculate the true anomaly
-			return orbit._m = CYCLE(2 * Math.atan2(
-				Math.sqrt(1 + orbit._e) * Math.sin(hE),
-				Math.sqrt(1 - orbit._e) * Math.cos(hE)
+			return orbit._m = CYCLE(2 * atan2(
+				sqrt(1 + orbit._e) * sin(hE),
+				sqrt(1 - orbit._e) * cos(hE)
 			));
 		}
 		else {
 			// calculate the true anomaly
-			return CYCLE(2 * Math.atan2(
-				Math.sqrt(1 + orbit._e) * Math.sin(E / 2),
-				Math.sqrt(1 - orbit._e) * Math.cos(E / 2)
+			return CYCLE(2 * atan2(
+				sqrt(1 + orbit._e) * sin(E / 2),
+				sqrt(1 - orbit._e) * cos(E / 2)
 			));
 		}
 	}
@@ -790,8 +803,8 @@
 		// return cached calculation
 		if ('_q' in orbit) return orbit._q;
 		// calculation given in vsop87 example.f
-		return orbit._q = Math.cos(orbit._O)
-			* Math.sin(orbit._i / 2);
+		return orbit._q = cos(orbit._O)
+			* sin(orbit._i / 2);
 	};
 
 	// p: sin(i/2)*sin(O) (vsop)
@@ -801,8 +814,8 @@
 		// return cached calculation
 		if ('_p' in orbit) return orbit._p;
 		// calculation given in vsop87 example.f
-		return orbit._p = Math.sin(orbit._O)
-			* Math.sin(orbit._i / 2);
+		return orbit._p = sin(orbit._O)
+			* sin(orbit._i / 2);
 	};
 
 	// k: e*cos(W) (vsop)
@@ -812,7 +825,7 @@
 		// return cached calculation
 		if ('_k' in orbit) return orbit._k;
 		// calculation given in vsop87 example.f
-		return orbit._k = orbit._e * Math.cos(orbit._W);
+		return orbit._k = orbit._e * cos(orbit._W);
 	};
 
 	// h: e*sin(W) (vsop)
@@ -822,7 +835,7 @@
 		// return cached calculation
 		if ('_h' in orbit) return orbit._h;
 		// calculation given in vsop87 example.f
-		return orbit._h = orbit._e * Math.sin(orbit._W);
+		return orbit._h = orbit._e * sin(orbit._W);
 	};
 
 	/*############################################################################*/
@@ -891,19 +904,19 @@
 			m = orbit.m(E); // true anomaly
 
 		// Distance to true anomaly position
-		var r = a * (1.0 - e * Math.cos(E));
-		var vf = Math.sqrt(orbit._G * a) / r;
+		var r = a * (1.0 - e * cos(E));
+		var vf = sqrt(orbit._G * a) / r;
 
 		// Perifocal reference plane
-		var rx = r * Math.cos(m),
-			ry = r * Math.sin(m),
-			vx = vf * - Math.sin(E),
-			vy = vf * Math.sqrt(1.0 - e * e) * Math.cos(E);
+		var rx = r * cos(m),
+			ry = r * sin(m),
+			vx = vf * - sin(E),
+			vy = vf * sqrt(1.0 - e * e) * cos(E);
 
 		// Pre-calculate elements for rotation matrix
-		var sinO = Math.sin(O), cosO = Math.cos(O),
-			sinI = Math.sin(i), cosI = Math.cos(i),
-			sinW = Math.sin(w), cosW = Math.cos(w),
+		var sinO = sin(O), cosO = cos(O),
+			sinI = sin(i), cosI = cos(i),
+			sinW = sin(w), cosW = cos(w),
 			sinWcosO = sinW * cosO, sinWsinO = sinW * sinO,
 			cosWcosO = cosW * cosO, cosWsinO = cosW * sinO,
 			sinWcosI = sinW * cosI,
