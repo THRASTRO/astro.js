@@ -101,6 +101,10 @@
 			}
 		}
 
+		// precession periods
+		orbit._PW = arg.PW || 0;
+		orbit._PO = arg.PO || 0;
+
 		// orbit may has name
 		if ('name' in arg) {
 			orbit.name = arg.name;
@@ -147,7 +151,7 @@
 			}
 		}
 		// optionally call update
-		if (dt) clone.update(jy2k);
+		if (dt) clone._update(jy2k);
 		// return copy
 		return clone;
 	}
@@ -812,6 +816,24 @@
 	// use units of AU3 and julian days or years (e.g. AstroJS.GMJY).
 	Klass.GM = function gravitationalParameter() { return this._GM; }
 
+	// In celestial mechanics, apsidal precession (or apsidal advance) is the
+	// precession (gradual rotation) of the line connecting the apsides (line
+	// of apsides) of an astronomical body's orbit. The apsides are the orbital
+	// points closest (periapsis) and farthest (apoapsis) from its primary body.
+	// The apsidal precession is the first time derivative of the argument of
+	// periapsis, one of the six main orbital elements of an orbit. Apsidal
+	// precession is considered positive when the orbit's axis rotates in the
+	// same direction as the orbital motion. An apsidal period is the time
+	// interval required for an orbit to precess through 360°.
+	Klass.PW = function apsidalPrecession() { return this._PW; }
+
+	// Nodal precession is the precession of the orbital plane of a satellite
+	// around the rotational axis of an astronomical body such as Earth. This
+	// precession is due to the non-spherical nature of a rotating body, which
+	// creates a non-uniform gravitational field. The direction of precession
+	// is opposite the direction of revolution. 
+	Klass.PO = function nodalPrecession() { return this._PO; }
+
 	// In chronology and periodization, an epoch or reference epoch is an
 	// instant in time chosen as the origin of a particular calendar era.
 	// The "epoch" serves as a reference point from which time is measured. 
@@ -872,7 +894,9 @@
 	// update orbital state for new epoch
 	// advance position and reset some states
 	// for dt = P, mean anomaly does not change
-	Klass.update = function update(jy2k)
+	// Note: could just get state at jy2k and
+	// convert the result back to an orbit.
+	Klass._update = function update(jy2k)
 	{
 		var orbit = this;
 		var epoch = orbit._t || 0;
@@ -884,6 +908,12 @@
 		orbit._M = CYCLE(orbit._n * (dt - orbit._T));
 		// adjust mean longitude for new time
 		orbit._L = CYCLE(orbit._M + orbit._W);
+		// Argument of periapsis precession
+		if (orbit._PW) orbit._w = dt / orbit._PW * TAU;
+		// Longitude of the ascending node precession
+		if (orbit._PO) orbit._O += dt / orbit._PO * TAU;
+		// update to new epoch
+		orbit._t = dt + epoch;
 		// reset dependent parameters
 		delete orbit._E; delete orbit._m;
 		// invalidate state vectors
@@ -935,6 +965,11 @@
 			O = orbit._O, w = orbit._w, M = orbit._M,
 			E = orbit.E(jy2k), // eccentric anomaly
 			m = orbit.m(E); // true anomaly
+
+		// Argument of periapsis precession
+		if (orbit._PW) w += dt / orbit._PW * TAU;
+		// Longitude of the ascending node precession
+		if (orbit._PO) O += dt / orbit._PO * TAU;
 
 		// Distance to true anomaly position
 		var r = a * (1.0 - e * cos(E));
@@ -1034,6 +1069,10 @@
 	Klass.orbitalPeriod = Klass.P;
 	Klass.angularMomentum = Klass.A;
 	Klass.gravitationalParameter = Klass.GM;
+
+	// first time derivates (precession periods)
+	Klass.apsidalPrecession = Klass.PW;
+	Klass.nodalPrecession = Klass.PO;
 
 	// additional orbital elements only on demand
 	// these must not be used as orbital input arguments

@@ -110,6 +110,8 @@ M: meanAnomaly
 P: orbitalPeriod
 A: angularMomentum
 GM: gravitationalParameter
+PW: apsidalPrecession
+PO: nodalPrecession
 ```
 
 ### additional orbital elements only on demand
@@ -290,6 +292,24 @@ The SI units of the standard gravitational parameter are m3 s−2.
 However, units of km3 s−2 are frequently used in the scientific
 literature and in spacecraft navigation. AstroJS normally will
 use units of AU3 and julian days or years (e.g. AstroJS.GMJY).
+
+### `PW = function apsidalPrecession()`
+In celestial mechanics, apsidal precession (or apsidal advance) is the
+precession (gradual rotation) of the line connecting the apsides (line
+of apsides) of an astronomical body's orbit. The apsides are the orbital
+points closest (periapsis) and farthest (apoapsis) from its primary body.
+The apsidal precession is the first time derivative of the argument of
+periapsis, one of the six main orbital elements of an orbit. Apsidal
+precession is considered positive when the orbit's axis rotates in the
+same direction as the orbital motion. An apsidal period is the time
+interval required for an orbit to precess through 360°.
+
+### `PO = function nodalPrecession()`
+Nodal precession is the precession of the orbital plane of a satellite
+around the rotational axis of an astronomical body such as Earth. This
+precession is due to the non-spherical nature of a rotating body, which
+creates a non-uniform gravitational field. The direction of precession
+is opposite the direction of revolution. 
 
 ### `epoch = function epoch()`
 In chronology and periodization, an epoch or reference epoch is an
