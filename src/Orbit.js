@@ -20,8 +20,18 @@
 	var sqrt = Math.sqrt;
 	var cbrt = Math.cbrt;
 	var atan2 = Math.atan2;
-	var asin = Math.asin;
-	var acos = Math.acos;
+
+	// Ensure valid range
+	function asin(angle) {
+		return Math.asin(Math.min(1,
+			Math.max(-1, angle)));
+	}
+
+	// Ensure valid range
+	function acos(angle) {
+		return Math.acos(Math.min(1,
+			Math.max(-1, angle)));
+	}
 
 	/******************************************************************************/
 	// Orbits can be created from orbital elements (6 independent parameters)
