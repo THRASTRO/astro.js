@@ -85,11 +85,6 @@ AstroJS.PI = PI;
 AstroJS.TAU = TAU;
 AstroJS.JD2000 = JD2000;
 
-// got these from somewhere?
-// maybe another mass system?
-// var GM_EMB = 3.986004356e14;
-// var GM_SUN = 1.32712440041e20;
-
 // Gravitational parameters for astronomic scale
 // time in days, distance in AU, mass in sun-mass
 // http://astronomy.stackexchange.com/a/7981
@@ -106,13 +101,14 @@ var GMJD = AstroJS.GMJD = {
 	sat: 8.4597151856806587398e-08, // sat
 	ura: 1.2920249167819693900e-08, // ura
 	nep: 1.5243589007842762800e-08, // nep
-	plu: 2.1886997654259696800e-12 // plu
+	plu: 2.1886997654259696800e-12, // plu
+	moon: 1.0936508975881017456e-11 // moon
 };
 
 // covert to a different time factor
 // time in julian years, distance in AU
 var GMJY = AstroJS.GMJY = {};
-for (name in GMJD) {
+for (var name in GMJD) {
 	GMJY[name] = GMJD[name];
 	GMJY[name] *= 133407.5625;
 	// => Math.pow(365.25, 2)
@@ -123,7 +119,7 @@ for (name in GMJD) {
 // https://www.aanda.org/articles/aa/full_html/2013/09/aa21843-13/T1.html
 /*
 var GMJS = AstroJS.GMJS = {};
-for (name in GMJD) {
+for (var name in GMJD) {
 	GMJS[name] = GMJD[name];
 	GMJS[name] /= 746496e4;
 	// => Math.pow(86400, 2)
